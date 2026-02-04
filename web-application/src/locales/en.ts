@@ -1,0 +1,150 @@
+export const en = {
+  common: {
+    signIn: 'Sign In',
+    register: 'Register',
+    signOut: 'Sign Out',
+    account: 'Account',
+    myAccount: 'My Account',
+    about: 'About',
+    home: 'Home',
+    search: 'Search',
+    loading: 'Loading...',
+    error: 'Error',
+    success: 'Success',
+  },
+  header: {
+    tagline: 'Discover Culinary Delights',
+    aboutUs: 'About Us',
+    signInButton: 'Sign In',
+    registerButton: 'Register',
+  },
+  home: {
+    hero: {
+      title: 'Discover Culinary Delights',
+      subtitle: 'From Around the World',
+      description: 'Explore authentic recipes, connect with food lovers, and embark on a global culinary journey from your kitchen.',
+      searchPlaceholder: 'Search for recipes, cuisines, or ingredients...',
+      searchButton: 'Search',
+    },
+    cuisines: {
+      title: 'Explore Global Cuisines',
+      subtitle: 'Discover authentic flavors from every corner of the world',
+      viewRecipes: 'View Recipes',
+    },
+    trending: {
+      title: 'Trending Recipes',
+      subtitle: 'Most popular recipes this week',
+      mins: 'mins',
+      servings: 'servings',
+    },
+    cta: {
+      title: 'Ready to Start Your Culinary Journey?',
+      subtitle: 'Join thousands of food enthusiasts discovering and sharing recipes from around the world.',
+      button: 'Sign Up Free',
+    },
+  },
+  about: {
+    title: 'About GlobalBites',
+    subtitle: 'Your Gateway to World Cuisine',
+    mission: {
+      title: 'Our Mission',
+      description: 'At GlobalBites, we believe food is a universal language that connects people across cultures and borders.',
+    },
+    vision: {
+      title: 'Our Vision',
+      description: 'To create a global community where anyone can explore, learn, and share authentic culinary experiences.',
+    },
+    values: {
+      title: 'Our Values',
+      authenticity: 'Authenticity',
+      authenticityDesc: 'Preserving traditional recipes and techniques',
+      community: 'Community',
+      communityDesc: 'Connecting food lovers worldwide',
+      discovery: 'Discovery',
+      discoveryDesc: 'Encouraging culinary exploration',
+    },
+  },
+  auth: {
+    signIn: {
+      title: 'Welcome Back!',
+      subtitle: 'Sign in to discover amazing recipes from around the world',
+      email: 'Email Address',
+      emailPlaceholder: 'you@example.com',
+      password: 'Password',
+      passwordPlaceholder: '••••••••',
+      rememberMe: 'Remember me',
+      forgotPassword: 'Forgot password?',
+      signInButton: 'Sign In',
+      signingIn: 'Signing in...',
+      orContinueWith: 'Or continue with',
+      noAccount: "Don't have an account?",
+      signUpLink: 'Sign up for free',
+      devMode: 'Dev Mode',
+      testCredentials: 'test@globalbites.com / password123',
+      invalidCredentials: 'Invalid email or password. Try test@globalbites.com / password123',
+    },
+    register: {
+      title: 'Join GlobalBites',
+      subtitle: 'Start your culinary journey today',
+      fullName: 'Full Name',
+      fullNamePlaceholder: 'John Doe',
+      email: 'Email Address',
+      emailPlaceholder: 'you@example.com',
+      password: 'Password',
+      passwordPlaceholder: '••••••••',
+      confirmPassword: 'Confirm Password',
+      confirmPasswordPlaceholder: '••••••••',
+      agreeToTerms: 'I agree to the',
+      termsOfService: 'Terms of Service',
+      and: 'and',
+      privacyPolicy: 'Privacy Policy',
+      registerButton: 'Create Account',
+      creating: 'Creating account...',
+      haveAccount: 'Already have an account?',
+      signInLink: 'Sign in',
+    },
+    forgotPassword: {
+      title: 'Reset Your Password',
+      subtitle: "Enter your email and we'll send you a reset link",
+      email: 'Email Address',
+      emailPlaceholder: 'you@example.com',
+      sendButton: 'Send Reset Link',
+      sending: 'Sending...',
+      backToSignIn: 'Back to Sign In',
+      checkEmail: 'Check your email for a password reset link',
+    },
+  },
+  account: {
+    welcome: 'Welcome back',
+    tabs: {
+      overview: 'Overview',
+      myRecipes: 'My Recipes',
+      activity: 'Activity',
+      settings: 'Settings',
+      statistics: 'Statistics',
+    },
+    recipes: 'Recipes',
+    followers: 'Followers',
+    following: 'Following',
+  },
+  cuisines: {
+    italian: 'Italian',
+    japanese: 'Japanese',
+    mexican: 'Mexican',
+    indian: 'Indian',
+    french: 'French',
+    thai: 'Thai',
+    chinese: 'Chinese',
+    greek: 'Greek',
+  },
+} as const;
+
+export type TranslationKeys = typeof en;
+export type Translation = {
+  [K in keyof TranslationKeys]: TranslationKeys[K] extends object
+    ? { [P in keyof TranslationKeys[K]]: TranslationKeys[K][P] extends object
+        ? { [Q in keyof TranslationKeys[K][P]]: string }
+        : string }
+    : string;
+};
+

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import SessionProvider from "@/components/SessionProvider";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 
 export const metadata: Metadata = {
   title: "GlobalBites - Discover Culinary Delights",
@@ -14,7 +16,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        {children}
+        <SessionProvider>
+          <LanguageProvider>
+            {children}
+          </LanguageProvider>
+        </SessionProvider>
       </body>
     </html>
   );

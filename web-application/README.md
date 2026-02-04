@@ -42,12 +42,25 @@ Before you begin, ensure you have the following installed:
 
 ## 📁 Project Structure
 
+> **📖 Detailed Structure Guide:** See [docs/PROJECT_STRUCTURE.md](./docs/PROJECT_STRUCTURE.md) for complete documentation.
+
 ```
 web-application/
+├── docs/                    # 📚 Documentation & guides
 ├── src/
-│   └── app/
-│       ├── layout.tsx       # Root layout component
-│       ├── page.tsx         # Home page component
+│   ├── app/                # 🛣️ Next.js App Router (routes & pages)
+│   │   ├── (auth)/        # 🔐 Auth routes group
+│   │   ├── about/         # About page
+│   │   ├── account/       # User account (protected)
+│   │   └── api/           # API routes
+│   ├── components/         # 🧩 React components
+│   │   ├── authentication/ # Auth components
+│   │   ├── user-account/   # Account components
+│   │   └── ...            # Shared components
+│   ├── lib/               # 🔧 Server utilities
+│   ├── hooks/             # 🪝 Custom React hooks
+│   ├── config/            # ⚙️ App configuration
+│   └── types/             # 📝 TypeScript types
 │       ├── globals.css      # Global styles
 │       └── favicon.ico      # Favicon
 ├── public/                  # Static assets

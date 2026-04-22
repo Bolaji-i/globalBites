@@ -6,12 +6,33 @@ import Link from 'next/link';
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement forgot password logic
-    console.log('Password reset requested for:', email);
-    setIsSubmitted(true);
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send reset link');
+      }
+
+      setIsSubmitted(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -39,6 +60,13 @@ export default function ForgotPassword() {
         <div className="mt-8 rounded-2xl bg-white p-8 shadow-xl dark:bg-gray-800">
           {!isSubmitted ? (
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Error Message */}
+              {error && (
+                <div className="rounded-lg bg-red-50 p-4 dark:bg-red-900/50">
+                  <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+                </div>
+              )}
+
               {/* Email Field */}
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -65,9 +93,10 @@ export default function ForgotPassword() {
               {/* Submit Button */}
               <button
                 type="submit"
-                className="w-full rounded-lg bg-gradient-to-r from-pink-500 via-rose-500 to-red-500 px-4 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:from-pink-600 hover:via-rose-600 hover:to-red-600 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-pink-500/50"
+                disabled={loading}
+                className="w-full rounded-lg bg-gradient-to-r from-pink-500 via-rose-500 to-red-500 px-4 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:from-pink-600 hover:via-rose-600 hover:to-red-600 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-pink-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Send Reset Link
+                {loading ? 'Sending...' : 'Send Reset Link'}
               </button>
 
               {/* Back to Sign In */}

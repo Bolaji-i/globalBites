@@ -81,9 +81,7 @@ export const es: Translation = {
       orContinueWith: 'O continúa con',
       noAccount: '¿No tienes una cuenta?',
       signUpLink: 'Regístrate gratis',
-      devMode: 'Modo Desarrollo',
-      testCredentials: 'test@globalbites.com / password123',
-      invalidCredentials: 'Correo o contraseña inválidos. Prueba test@globalbites.com / password123',
+      invalidCredentials: 'Correo o contraseña inválidos.',
     },
     register: {
       title: 'Únete a GlobalBites',

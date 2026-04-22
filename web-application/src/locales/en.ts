@@ -79,9 +79,7 @@ export const en = {
       orContinueWith: 'Or continue with',
       noAccount: "Don't have an account?",
       signUpLink: 'Sign up for free',
-      devMode: 'Dev Mode',
-      testCredentials: 'test@globalbites.com / password123',
-      invalidCredentials: 'Invalid email or password. Try test@globalbites.com / password123',
+      invalidCredentials: 'Invalid email or password.',
     },
     register: {
       title: 'Join GlobalBites',

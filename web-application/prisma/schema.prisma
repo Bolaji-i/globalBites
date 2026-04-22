@@ -1,0 +1,203 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model for authentication and profile data
+model User {
+  id            String    @id @default(cuid())
+  firstName     String
+  lastName      String
+  username      String?   @unique  // Unique username for profile URL
+  email         String    @unique
+  password      String?   // Nullable for OAuth users
+  emailVerified DateTime?
+  image         String?   // Profile picture URL
+  bio           String?
+  location      String?
+  website       String?   // Personal website or social link
+  
+  // Preferences
+  skillLevel         String?   // beginner, intermediate, advanced
+  measurementSystem  String?   // metric, imperial
+  language           String?   // Preferred language code
+  
+  // Privacy settings
+  profileVisibility  String?   // public, private, friends
+  showEmail          Boolean   @default(false)
+  showLocation       Boolean   @default(true)
+  
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  accounts      Account[]
+  sessions      Session[]
+  recipes       Recipe[]
+  favorites     Favorite[]
+  cookingLogs   CookingLog[]
+  achievements  UserAchievement[]
+
+  @@map("users")
+}
+
+// Account model for OAuth providers (NextAuth.js)
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+// Session model for database sessions (optional, using JWT by default)
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+// Verification token for email verification
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// Password reset token
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expires   DateTime
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@map("password_reset_tokens")
+}
+
+// Recipe model for user-created recipes
+model Recipe {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  image       String?
+  cuisine     String?
+  country     String?  // Country of origin
+  difficulty  String?  // easy, medium, hard
+  prepTime    Int?     // in minutes
+  cookTime    Int?     // in minutes
+  servings    Int?
+  ingredients Json?    // Store as JSON array
+  steps       Json?    // Store as JSON array
+  tags        String[] // Array of tags
+  published   Boolean  @default(false)
+  
+  // Relations
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  favorites   Favorite[]
+  cookingLogs CookingLog[]
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([cuisine])
+  @@index([authorId])
+  @@index([published])
+  @@map("recipes")
+}
+
+// Favorite/Saved recipes
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  recipeId  String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, recipeId])
+  @@map("favorites")
+}
+
+// Cooking log - records each time a user cooks a recipe
+// Drives cooking streak, cuisine passport, and "recipes tried" stats
+model CookingLog {
+  id        String   @id @default(cuid())
+  userId    String
+  recipeId  String
+  rating    Int?     // 1-5 stars, optional
+  notes     String?  // Personal notes about the cook
+  cookedAt  DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@index([userId, cookedAt])
+  @@index([recipeId])
+  @@map("cooking_logs")
+}
+
+// Achievement definitions - seeded master list of possible achievements
+model Achievement {
+  id          String   @id @default(cuid())
+  key         String   @unique // e.g. "master_chef", "world_explorer"
+  title       String
+  description String
+  icon        String   // emoji or icon identifier
+  threshold   Int      // numeric threshold to unlock (e.g. 20 recipes, 25 countries)
+  category    String   // "recipes", "countries", "streak", "followers"
+
+  users       UserAchievement[]
+
+  @@map("achievements")
+}
+
+// Junction table tracking which achievements each user has unlocked
+model UserAchievement {
+  id            String      @id @default(cuid())
+  userId        String
+  achievementId String
+  unlockedAt    DateTime    @default(now())
+
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+  @@index([userId])
+  @@map("user_achievements")
+}

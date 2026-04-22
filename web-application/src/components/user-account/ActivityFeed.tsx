@@ -1,72 +1,86 @@
 'use client';
 
-export default function ActivityFeed({ user }: { user: any }) {
-  const activities = [
-    {
-      id: 1,
-      type: 'recipe_created',
-      title: 'Created a new recipe',
-      description: 'Authentic Pad Thai',
-      time: '2 hours ago',
-      icon: '📝',
-      color: 'bg-green-500',
-    },
-    {
-      id: 2,
-      type: 'recipe_saved',
-      title: 'Saved a recipe',
-      description: 'Classic French Croissants by Chef Pierre',
-      time: '5 hours ago',
-      icon: '❤️',
-      color: 'bg-pink-500',
-    },
-    {
-      id: 3,
-      type: 'review_posted',
-      title: 'Posted a review',
-      description: 'Rated "Chicken Tikka Masala" 5 stars',
-      time: '1 day ago',
-      icon: '⭐',
-      color: 'bg-yellow-500',
-    },
-    {
-      id: 4,
-      type: 'achievement',
-      title: 'Unlocked achievement',
-      description: 'World Explorer - Tried 25+ countries',
-      time: '2 days ago',
-      icon: '🏆',
-      color: 'bg-purple-500',
-    },
-    {
-      id: 5,
-      type: 'follower',
-      title: 'New follower',
-      description: 'John Doe started following you',
-      time: '3 days ago',
-      icon: '👤',
-      color: 'bg-blue-500',
-    },
-  ];
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
 
-  const cookingJournal = [
-    {
-      id: 1,
-      recipe: 'Homemade Ramen',
-      date: 'Jan 25, 2026',
-      rating: 5,
-      notes: 'Amazing! The broth was perfect. Will make again.',
-      photo: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400&q=80',
-    },
-    {
-      id: 2,
-      recipe: 'Beef Wellington',
-      date: 'Jan 22, 2026',
-      rating: 4,
-      notes: 'Good but the pastry was a bit thick. Need more practice.',
-      photo: 'https://images.unsplash.com/photo-1546833998-877b37c2e5c6?w=400&q=80',
-    },
-  ];
+interface ActivityEvent {
+  id: string;
+  type: 'recipe_created' | 'recipe_saved' | 'cooked' | 'achievement';
+  title: string;
+  description: string;
+  at: string;
+  icon: string;
+  color: string;
+}
+
+interface JournalEntry {
+  id: string;
+  recipeId: string;
+  recipe: string;
+  image: string | null;
+  rating: number | null;
+  notes: string | null;
+  cookedAt: string;
+}
+
+interface ActivityData {
+  events: ActivityEvent[];
+  cookingJournal: JournalEntry[];
+  thisWeek: {
+    recipesCreated: number;
+    recipesSaved: number;
+    recipesCooked: number;
+  };
+}
+
+function relativeTime(iso: string): string {
+  const then = new Date(iso).getTime();
+  const now = Date.now();
+  const diff = Math.max(0, now - then);
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  if (days < 7) return `${days}d ago`;
+  return new Date(iso).toLocaleDateString();
+}
+
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+}
+
+export default function ActivityFeed() {
+  const [data, setData] = useState<ActivityData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/user/activity')
+      .then((r) => r.json())
+      .then((d) => {
+        if (!d.error) setData(d);
+      })
+      .catch((err) => console.error('Failed to load activity:', err))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="animate-pulse space-y-4">
+        <div className="h-40 rounded-2xl bg-gray-200 dark:bg-gray-700" />
+        <div className="h-40 rounded-2xl bg-gray-200 dark:bg-gray-700" />
+      </div>
+    );
+  }
+
+  const events = data?.events ?? [];
+  const cookingJournal = data?.cookingJournal ?? [];
+  const thisWeek = data?.thisWeek ?? { recipesCreated: 0, recipesSaved: 0, recipesCooked: 0 };
 
   return (
     <div className="grid gap-6 lg:grid-cols-3">
@@ -74,62 +88,91 @@ export default function ActivityFeed({ user }: { user: any }) {
       <div className="space-y-6 lg:col-span-2">
         <div className="rounded-2xl bg-white p-6 shadow-lg dark:bg-gray-800">
           <h2 className="mb-6 text-xl font-bold text-gray-900 dark:text-white">Recent Activity</h2>
-          <div className="space-y-4">
-            {activities.map((activity) => (
-              <div key={activity.id} className="flex gap-4 rounded-lg bg-gray-50 p-4 dark:bg-gray-700/50">
-                <div className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full ${activity.color} text-2xl`}>
-                  {activity.icon}
+          {events.length === 0 ? (
+            <div className="py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+              No activity yet. Create a recipe, save a favorite, or log a cook to get started.
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {events.map((event) => (
+                <div key={event.id} className="flex gap-4 rounded-lg bg-gray-50 p-4 dark:bg-gray-700/50">
+                  <div
+                    className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full ${event.color} text-2xl`}
+                  >
+                    {event.icon}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-900 dark:text-white">{event.title}</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{event.description}</p>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">{relativeTime(event.at)}</p>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 dark:text-white">{activity.title}</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{activity.description}</p>
-                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">{activity.time}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Cooking Journal */}
         <div className="rounded-2xl bg-white p-6 shadow-lg dark:bg-gray-800">
           <div className="mb-6 flex items-center justify-between">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">Cooking Journal</h2>
-            <button className="text-sm font-medium text-pink-600 hover:text-pink-500 dark:text-pink-400">
-              Add Entry
-            </button>
+            <Link
+              href="/recipes"
+              className="text-sm font-medium text-pink-600 hover:text-pink-500 dark:text-pink-400"
+            >
+              Log another
+            </Link>
           </div>
-          <div className="space-y-4">
-            {cookingJournal.map((entry) => (
-              <div key={entry.id} className="flex gap-4 rounded-lg border border-gray-200 p-4 dark:border-gray-700">
-                <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg">
-                  <img src={entry.photo} alt={entry.recipe} className="h-full w-full object-cover" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 dark:text-white">{entry.recipe}</h3>
-                  <div className="my-1 flex items-center gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <svg
-                        key={i}
-                        className={`h-4 w-4 ${i < entry.rating ? 'text-yellow-400' : 'text-gray-300'}`}
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                    ))}
+          {cookingJournal.length === 0 ? (
+            <div className="py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+              Nothing cooked yet. Open any recipe and tap <span className="font-medium">I cooked this</span>.
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {cookingJournal.map((entry) => (
+                <Link
+                  href={`/recipes/${entry.recipeId}`}
+                  key={entry.id}
+                  className="flex gap-4 rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50"
+                >
+                  <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200 dark:bg-gray-700">
+                    {entry.image ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={entry.image} alt={entry.recipe} className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-3xl">🍽️</div>
+                    )}
                   </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{entry.notes}</p>
-                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">{entry.date}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-900 dark:text-white">{entry.recipe}</h3>
+                    {entry.rating !== null && (
+                      <div className="my-1 flex items-center gap-1">
+                        {[...Array(5)].map((_, i) => (
+                          <svg
+                            key={i}
+                            className={`h-4 w-4 ${i < entry.rating! ? 'text-yellow-400' : 'text-gray-300'}`}
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                          </svg>
+                        ))}
+                      </div>
+                    )}
+                    {entry.notes && (
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{entry.notes}</p>
+                    )}
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">{formatDate(entry.cookedAt)}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Right Column - Engagement Stats */}
+      {/* Right Column - This Week */}
       <div className="space-y-6">
-        {/* This Week */}
         <div className="rounded-2xl bg-white p-6 shadow-lg dark:bg-gray-800">
           <h3 className="mb-4 text-lg font-bold text-gray-900 dark:text-white">This Week</h3>
           <div className="space-y-4">
@@ -140,7 +183,7 @@ export default function ActivityFeed({ user }: { user: any }) {
                 </div>
                 <span className="text-sm text-gray-600 dark:text-gray-400">Recipes Created</span>
               </div>
-              <span className="text-xl font-bold text-gray-900 dark:text-white">3</span>
+              <span className="text-xl font-bold text-gray-900 dark:text-white">{thisWeek.recipesCreated}</span>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -149,7 +192,7 @@ export default function ActivityFeed({ user }: { user: any }) {
                 </div>
                 <span className="text-sm text-gray-600 dark:text-gray-400">Recipes Saved</span>
               </div>
-              <span className="text-xl font-bold text-gray-900 dark:text-white">12</span>
+              <span className="text-xl font-bold text-gray-900 dark:text-white">{thisWeek.recipesSaved}</span>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -158,29 +201,8 @@ export default function ActivityFeed({ user }: { user: any }) {
                 </div>
                 <span className="text-sm text-gray-600 dark:text-gray-400">Recipes Cooked</span>
               </div>
-              <span className="text-xl font-bold text-gray-900 dark:text-white">8</span>
+              <span className="text-xl font-bold text-gray-900 dark:text-white">{thisWeek.recipesCooked}</span>
             </div>
-          </div>
-        </div>
-
-        {/* Following Activity */}
-        <div className="rounded-2xl bg-white p-6 shadow-lg dark:bg-gray-800">
-          <h3 className="mb-4 text-lg font-bold text-gray-900 dark:text-white">People You Follow</h3>
-          <div className="space-y-3">
-            {[
-              { name: 'Chef Maria', activity: 'Posted Italian Risotto', time: '1h ago' },
-              { name: 'John Cooks', activity: 'Saved your recipe', time: '3h ago' },
-              { name: 'Sushi Master', activity: 'Created Dragon Roll', time: '5h ago' },
-            ].map((person, i) => (
-              <div key={i} className="flex items-start gap-3">
-                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-pink-400 to-rose-400" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">{person.name}</p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">{person.activity}</p>
-                  <p className="text-xs text-gray-500">{person.time}</p>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </div>

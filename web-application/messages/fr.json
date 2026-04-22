@@ -1,0 +1,139 @@
+{
+  "common": {
+    "signIn": "Se connecter",
+    "register": "S'inscrire",
+    "signOut": "Se déconnecter",
+    "account": "Compte",
+    "myAccount": "Mon compte",
+    "about": "À propos",
+    "home": "Accueil",
+    "search": "Rechercher",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès"
+  },
+  "header": {
+    "tagline": "Découvrez les délices culinaires",
+    "aboutUs": "À propos de nous",
+    "recipes": "Recettes",
+    "signInButton": "Se connecter",
+    "registerButton": "S'inscrire"
+  },
+  "home": {
+    "hero": {
+      "title": "Découvrez les délices culinaires",
+      "subtitle": "Du monde entier",
+      "description": "Explorez des recettes authentiques, connectez-vous avec les amateurs de cuisine et embarquez pour un voyage culinaire mondial depuis votre cuisine.",
+      "searchPlaceholder": "Rechercher des recettes, cuisines ou ingrédients...",
+      "searchButton": "Rechercher"
+    },
+    "cuisines": {
+      "title": "Explorez les cuisines du monde",
+      "subtitle": "Découvrez des saveurs authentiques des quatre coins du monde",
+      "viewRecipes": "Voir les recettes"
+    },
+    "trending": {
+      "title": "Recettes populaires",
+      "subtitle": "Les recettes les plus populaires cette semaine",
+      "mins": "min",
+      "servings": "portions"
+    },
+    "cta": {
+      "title": "Prêt à commencer votre voyage culinaire ?",
+      "subtitle": "Rejoignez des milliers de passionnés de cuisine qui découvrent et partagent des recettes du monde entier.",
+      "button": "S'inscrire gratuitement"
+    }
+  },
+  "about": {
+    "title": "À propos de GlobalBites",
+    "subtitle": "Votre porte vers la cuisine du monde",
+    "mission": {
+      "title": "Notre mission",
+      "description": "Chez GlobalBites, nous croyons que la nourriture est un langage universel qui relie les gens à travers les cultures et les frontières."
+    },
+    "vision": {
+      "title": "Notre vision",
+      "description": "Créer une communauté mondiale où chacun peut explorer, apprendre et partager des expériences culinaires authentiques."
+    },
+    "values": {
+      "title": "Nos valeurs",
+      "authenticity": "Authenticité",
+      "authenticityDesc": "Préserver les recettes et techniques traditionnelles",
+      "community": "Communauté",
+      "communityDesc": "Connecter les amateurs de cuisine du monde entier",
+      "discovery": "Découverte",
+      "discoveryDesc": "Encourager l'exploration culinaire"
+    }
+  },
+  "auth": {
+    "signIn": {
+      "title": "Bon retour !",
+      "subtitle": "Connectez-vous pour découvrir des recettes incroyables du monde entier",
+      "email": "Adresse e-mail",
+      "emailPlaceholder": "vous@exemple.com",
+      "password": "Mot de passe",
+      "passwordPlaceholder": "••••••••",
+      "rememberMe": "Se souvenir de moi",
+      "forgotPassword": "Mot de passe oublié ?",
+      "signInButton": "Se connecter",
+      "signingIn": "Connexion en cours...",
+      "orContinueWith": "Ou continuer avec",
+      "noAccount": "Vous n'avez pas de compte ?",
+      "signUpLink": "Inscrivez-vous gratuitement",
+      "invalidCredentials": "E-mail ou mot de passe invalide."
+    },
+    "register": {
+      "title": "Rejoignez GlobalBites",
+      "subtitle": "Commencez votre voyage culinaire aujourd'hui",
+      "fullName": "Nom complet",
+      "fullNamePlaceholder": "Jean Dupont",
+      "email": "Adresse e-mail",
+      "emailPlaceholder": "vous@exemple.com",
+      "password": "Mot de passe",
+      "passwordPlaceholder": "••••••••",
+      "confirmPassword": "Confirmer le mot de passe",
+      "confirmPasswordPlaceholder": "••••••••",
+      "agreeToTerms": "J'accepte les",
+      "termsOfService": "Conditions d'utilisation",
+      "and": "et la",
+      "privacyPolicy": "Politique de confidentialité",
+      "registerButton": "Créer un compte",
+      "creating": "Création du compte...",
+      "haveAccount": "Vous avez déjà un compte ?",
+      "signInLink": "Se connecter"
+    },
+    "forgotPassword": {
+      "title": "Réinitialiser votre mot de passe",
+      "subtitle": "Entrez votre e-mail et nous vous enverrons un lien de réinitialisation",
+      "email": "Adresse e-mail",
+      "emailPlaceholder": "vous@exemple.com",
+      "sendButton": "Envoyer le lien",
+      "sending": "Envoi en cours...",
+      "backToSignIn": "Retour à la connexion",
+      "checkEmail": "Vérifiez votre e-mail pour le lien de réinitialisation"
+    }
+  },
+  "account": {
+    "welcome": "Bon retour",
+    "tabs": {
+      "overview": "Aperçu",
+      "myRecipes": "Mes recettes",
+      "activity": "Activité",
+      "settings": "Paramètres",
+      "statistics": "Statistiques"
+    },
+    "recipes": "Recettes",
+    "followers": "Abonnés",
+    "following": "Abonnements"
+  },
+  "cuisines": {
+    "italian": "Italienne",
+    "japanese": "Japonaise",
+    "mexican": "Mexicaine",
+    "indian": "Indienne",
+    "french": "Française",
+    "thai": "Thaïlandaise",
+    "chinese": "Chinoise",
+    "greek": "Grecque"
+  }
+}

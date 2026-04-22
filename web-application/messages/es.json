@@ -1,0 +1,139 @@
+{
+  "common": {
+    "signIn": "Iniciar Sesión",
+    "register": "Registrarse",
+    "signOut": "Cerrar Sesión",
+    "account": "Cuenta",
+    "myAccount": "Mi Cuenta",
+    "about": "Acerca de",
+    "home": "Inicio",
+    "search": "Buscar",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito"
+  },
+  "header": {
+    "tagline": "Descubre Delicias Culinarias",
+    "aboutUs": "Sobre Nosotros",
+    "recipes": "Recetas",
+    "signInButton": "Iniciar Sesión",
+    "registerButton": "Registrarse"
+  },
+  "home": {
+    "hero": {
+      "title": "Descubre Delicias Culinarias",
+      "subtitle": "De Todo el Mundo",
+      "description": "Explora recetas auténticas, conecta con amantes de la comida y embárcate en un viaje culinario global desde tu cocina.",
+      "searchPlaceholder": "Buscar recetas, cocinas o ingredientes...",
+      "searchButton": "Buscar"
+    },
+    "cuisines": {
+      "title": "Explora Cocinas Globales",
+      "subtitle": "Descubre sabores auténticos de cada rincón del mundo",
+      "viewRecipes": "Ver Recetas"
+    },
+    "trending": {
+      "title": "Recetas Populares",
+      "subtitle": "Las recetas más populares esta semana",
+      "mins": "mins",
+      "servings": "porciones"
+    },
+    "cta": {
+      "title": "¿Listo para Comenzar tu Viaje Culinario?",
+      "subtitle": "Únete a miles de entusiastas de la comida que descubren y comparten recetas de todo el mundo.",
+      "button": "Regístrate Gratis"
+    }
+  },
+  "about": {
+    "title": "Acerca de GlobalBites",
+    "subtitle": "Tu Puerta a la Cocina Mundial",
+    "mission": {
+      "title": "Nuestra Misión",
+      "description": "En GlobalBites, creemos que la comida es un lenguaje universal que conecta a las personas a través de culturas y fronteras."
+    },
+    "vision": {
+      "title": "Nuestra Visión",
+      "description": "Crear una comunidad global donde cualquiera pueda explorar, aprender y compartir experiencias culinarias auténticas."
+    },
+    "values": {
+      "title": "Nuestros Valores",
+      "authenticity": "Autenticidad",
+      "authenticityDesc": "Preservando recetas y técnicas tradicionales",
+      "community": "Comunidad",
+      "communityDesc": "Conectando amantes de la comida en todo el mundo",
+      "discovery": "Descubrimiento",
+      "discoveryDesc": "Fomentando la exploración culinaria"
+    }
+  },
+  "auth": {
+    "signIn": {
+      "title": "¡Bienvenido de Nuevo!",
+      "subtitle": "Inicia sesión para descubrir recetas increíbles de todo el mundo",
+      "email": "Correo Electrónico",
+      "emailPlaceholder": "tu@ejemplo.com",
+      "password": "Contraseña",
+      "passwordPlaceholder": "••••••••",
+      "rememberMe": "Recuérdame",
+      "forgotPassword": "¿Olvidaste tu contraseña?",
+      "signInButton": "Iniciar Sesión",
+      "signingIn": "Iniciando sesión...",
+      "orContinueWith": "O continúa con",
+      "noAccount": "¿No tienes una cuenta?",
+      "signUpLink": "Regístrate gratis",
+      "invalidCredentials": "Correo o contraseña inválidos."
+    },
+    "register": {
+      "title": "Únete a GlobalBites",
+      "subtitle": "Comienza tu viaje culinario hoy",
+      "fullName": "Nombre Completo",
+      "fullNamePlaceholder": "Juan Pérez",
+      "email": "Correo Electrónico",
+      "emailPlaceholder": "tu@ejemplo.com",
+      "password": "Contraseña",
+      "passwordPlaceholder": "••••••••",
+      "confirmPassword": "Confirmar Contraseña",
+      "confirmPasswordPlaceholder": "••••••••",
+      "agreeToTerms": "Acepto los",
+      "termsOfService": "Términos de Servicio",
+      "and": "y la",
+      "privacyPolicy": "Política de Privacidad",
+      "registerButton": "Crear Cuenta",
+      "creating": "Creando cuenta...",
+      "haveAccount": "¿Ya tienes una cuenta?",
+      "signInLink": "Iniciar sesión"
+    },
+    "forgotPassword": {
+      "title": "Restablecer tu Contraseña",
+      "subtitle": "Ingresa tu correo y te enviaremos un enlace de restablecimiento",
+      "email": "Correo Electrónico",
+      "emailPlaceholder": "tu@ejemplo.com",
+      "sendButton": "Enviar Enlace",
+      "sending": "Enviando...",
+      "backToSignIn": "Volver a Iniciar Sesión",
+      "checkEmail": "Revisa tu correo para el enlace de restablecimiento"
+    }
+  },
+  "account": {
+    "welcome": "Bienvenido de nuevo",
+    "tabs": {
+      "overview": "Resumen",
+      "myRecipes": "Mis Recetas",
+      "activity": "Actividad",
+      "settings": "Configuración",
+      "statistics": "Estadísticas"
+    },
+    "recipes": "Recetas",
+    "followers": "Seguidores",
+    "following": "Siguiendo"
+  },
+  "cuisines": {
+    "italian": "Italiana",
+    "japanese": "Japonesa",
+    "mexican": "Mexicana",
+    "indian": "India",
+    "french": "Francesa",
+    "thai": "Tailandesa",
+    "chinese": "China",
+    "greek": "Griega"
+  }
+}

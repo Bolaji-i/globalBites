@@ -1,0 +1,139 @@
+{
+  "common": {
+    "signIn": "登录",
+    "register": "注册",
+    "signOut": "退出",
+    "account": "账户",
+    "myAccount": "我的账户",
+    "about": "关于",
+    "home": "首页",
+    "search": "搜索",
+    "loading": "加载中...",
+    "error": "错误",
+    "success": "成功"
+  },
+  "header": {
+    "tagline": "发现美食佳肴",
+    "aboutUs": "关于我们",
+    "recipes": "食谱",
+    "signInButton": "登录",
+    "registerButton": "注册"
+  },
+  "home": {
+    "hero": {
+      "title": "发现美食佳肴",
+      "subtitle": "来自世界各地",
+      "description": "探索正宗食谱，与美食爱好者建立联系，从您的厨房开启全球美食之旅。",
+      "searchPlaceholder": "搜索食谱、菜系或食材...",
+      "searchButton": "搜索"
+    },
+    "cuisines": {
+      "title": "探索全球美食",
+      "subtitle": "发现来自世界各地的正宗风味",
+      "viewRecipes": "查看食谱"
+    },
+    "trending": {
+      "title": "热门食谱",
+      "subtitle": "本周最受欢迎的食谱",
+      "mins": "分钟",
+      "servings": "人份"
+    },
+    "cta": {
+      "title": "准备开始您的美食之旅？",
+      "subtitle": "加入数千名美食爱好者，发现和分享来自世界各地的食谱。",
+      "button": "免费注册"
+    }
+  },
+  "about": {
+    "title": "关于GlobalBites",
+    "subtitle": "通往世界美食的大门",
+    "mission": {
+      "title": "我们的使命",
+      "description": "在GlobalBites，我们相信美食是一种跨越文化和国界连接人们的通用语言。"
+    },
+    "vision": {
+      "title": "我们的愿景",
+      "description": "创建一个全球社区，让任何人都可以探索、学习和分享正宗的美食体验。"
+    },
+    "values": {
+      "title": "我们的价值观",
+      "authenticity": "正宗",
+      "authenticityDesc": "保留传统食谱和技艺",
+      "community": "社区",
+      "communityDesc": "连接全球美食爱好者",
+      "discovery": "发现",
+      "discoveryDesc": "鼓励美食探索"
+    }
+  },
+  "auth": {
+    "signIn": {
+      "title": "欢迎回来！",
+      "subtitle": "登录发现来自世界各地的精彩食谱",
+      "email": "邮箱地址",
+      "emailPlaceholder": "you@example.com",
+      "password": "密码",
+      "passwordPlaceholder": "••••••••",
+      "rememberMe": "记住我",
+      "forgotPassword": "忘记密码？",
+      "signInButton": "登录",
+      "signingIn": "登录中...",
+      "orContinueWith": "或继续使用",
+      "noAccount": "没有账户？",
+      "signUpLink": "免费注册",
+      "invalidCredentials": "邮箱或密码无效。"
+    },
+    "register": {
+      "title": "加入GlobalBites",
+      "subtitle": "今天开始您的美食之旅",
+      "fullName": "全名",
+      "fullNamePlaceholder": "张三",
+      "email": "邮箱地址",
+      "emailPlaceholder": "you@example.com",
+      "password": "密码",
+      "passwordPlaceholder": "••••••••",
+      "confirmPassword": "确认密码",
+      "confirmPasswordPlaceholder": "••••••••",
+      "agreeToTerms": "我同意",
+      "termsOfService": "服务条款",
+      "and": "和",
+      "privacyPolicy": "隐私政策",
+      "registerButton": "创建账户",
+      "creating": "创建账户中...",
+      "haveAccount": "已有账户？",
+      "signInLink": "登录"
+    },
+    "forgotPassword": {
+      "title": "重置密码",
+      "subtitle": "输入您的邮箱，我们将发送重置链接",
+      "email": "邮箱地址",
+      "emailPlaceholder": "you@example.com",
+      "sendButton": "发送链接",
+      "sending": "发送中...",
+      "backToSignIn": "返回登录",
+      "checkEmail": "请检查您的邮箱获取密码重置链接"
+    }
+  },
+  "account": {
+    "welcome": "欢迎回来",
+    "tabs": {
+      "overview": "概览",
+      "myRecipes": "我的食谱",
+      "activity": "动态",
+      "settings": "设置",
+      "statistics": "统计"
+    },
+    "recipes": "食谱",
+    "followers": "粉丝",
+    "following": "关注"
+  },
+  "cuisines": {
+    "italian": "意大利菜",
+    "japanese": "日本料理",
+    "mexican": "墨西哥菜",
+    "indian": "印度菜",
+    "french": "法国菜",
+    "thai": "泰国菜",
+    "chinese": "中国菜",
+    "greek": "希腊菜"
+  }
+}

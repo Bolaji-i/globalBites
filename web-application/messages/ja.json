@@ -1,0 +1,139 @@
+{
+  "common": {
+    "signIn": "ログイン",
+    "register": "登録",
+    "signOut": "ログアウト",
+    "account": "アカウント",
+    "myAccount": "マイアカウント",
+    "about": "概要",
+    "home": "ホーム",
+    "search": "検索",
+    "loading": "読み込み中...",
+    "error": "エラー",
+    "success": "成功"
+  },
+  "header": {
+    "tagline": "美食の世界を発見",
+    "aboutUs": "私たちについて",
+    "recipes": "レシピ",
+    "signInButton": "ログイン",
+    "registerButton": "登録"
+  },
+  "home": {
+    "hero": {
+      "title": "美食の世界を発見",
+      "subtitle": "世界中から",
+      "description": "本格的なレシピを探索し、食通とつながり、キッチンから世界の料理の旅に出かけましょう。",
+      "searchPlaceholder": "レシピ、料理、食材を検索...",
+      "searchButton": "検索"
+    },
+    "cuisines": {
+      "title": "世界の料理を探索",
+      "subtitle": "世界中の本格的な味を発見しましょう",
+      "viewRecipes": "レシピを見る"
+    },
+    "trending": {
+      "title": "人気のレシピ",
+      "subtitle": "今週最も人気のあるレシピ",
+      "mins": "分",
+      "servings": "人前"
+    },
+    "cta": {
+      "title": "料理の旅を始める準備はできましたか？",
+      "subtitle": "世界中のレシピを発見し共有する何千人もの食通に参加しましょう。",
+      "button": "無料で登録"
+    }
+  },
+  "about": {
+    "title": "GlobalBitesについて",
+    "subtitle": "世界の料理への入り口",
+    "mission": {
+      "title": "私たちのミッション",
+      "description": "GlobalBitesでは、食は文化や国境を越えて人々をつなぐ普遍的な言語であると信じています。"
+    },
+    "vision": {
+      "title": "私たちのビジョン",
+      "description": "誰もが本格的な料理体験を探索し、学び、共有できるグローバルコミュニティを作ること。"
+    },
+    "values": {
+      "title": "私たちの価値観",
+      "authenticity": "本物",
+      "authenticityDesc": "伝統的なレシピと技術を守る",
+      "community": "コミュニティ",
+      "communityDesc": "世界中の食通をつなぐ",
+      "discovery": "発見",
+      "discoveryDesc": "料理探求を奨励する"
+    }
+  },
+  "auth": {
+    "signIn": {
+      "title": "おかえりなさい！",
+      "subtitle": "ログインして世界中の素晴らしいレシピを発見しましょう",
+      "email": "メールアドレス",
+      "emailPlaceholder": "you@example.com",
+      "password": "パスワード",
+      "passwordPlaceholder": "••••••••",
+      "rememberMe": "ログイン状態を保持",
+      "forgotPassword": "パスワードをお忘れですか？",
+      "signInButton": "ログイン",
+      "signingIn": "ログイン中...",
+      "orContinueWith": "または続ける",
+      "noAccount": "アカウントをお持ちでないですか？",
+      "signUpLink": "無料で登録",
+      "invalidCredentials": "メールまたはパスワードが無効です。"
+    },
+    "register": {
+      "title": "GlobalBitesに参加",
+      "subtitle": "今日から料理の旅を始めましょう",
+      "fullName": "フルネーム",
+      "fullNamePlaceholder": "山田太郎",
+      "email": "メールアドレス",
+      "emailPlaceholder": "you@example.com",
+      "password": "パスワード",
+      "passwordPlaceholder": "••••••••",
+      "confirmPassword": "パスワードの確認",
+      "confirmPasswordPlaceholder": "••••••••",
+      "agreeToTerms": "以下に同意します",
+      "termsOfService": "利用規約",
+      "and": "と",
+      "privacyPolicy": "プライバシーポリシー",
+      "registerButton": "アカウント作成",
+      "creating": "アカウント作成中...",
+      "haveAccount": "すでにアカウントをお持ちですか？",
+      "signInLink": "ログイン"
+    },
+    "forgotPassword": {
+      "title": "パスワードをリセット",
+      "subtitle": "メールアドレスを入力してください。リセットリンクをお送りします",
+      "email": "メールアドレス",
+      "emailPlaceholder": "you@example.com",
+      "sendButton": "リンクを送信",
+      "sending": "送信中...",
+      "backToSignIn": "ログインに戻る",
+      "checkEmail": "パスワードリセットリンクをメールで確認してください"
+    }
+  },
+  "account": {
+    "welcome": "おかえりなさい",
+    "tabs": {
+      "overview": "概要",
+      "myRecipes": "マイレシピ",
+      "activity": "アクティビティ",
+      "settings": "設定",
+      "statistics": "統計"
+    },
+    "recipes": "レシピ",
+    "followers": "フォロワー",
+    "following": "フォロー中"
+  },
+  "cuisines": {
+    "italian": "イタリアン",
+    "japanese": "日本料理",
+    "mexican": "メキシカン",
+    "indian": "インド料理",
+    "french": "フレンチ",
+    "thai": "タイ料理",
+    "chinese": "中華料理",
+    "greek": "ギリシャ料理"
+  }
+}

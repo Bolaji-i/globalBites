@@ -1,0 +1,139 @@
+{
+  "common": {
+    "signIn": "Accedi",
+    "register": "Registrati",
+    "signOut": "Esci",
+    "account": "Account",
+    "myAccount": "Il mio account",
+    "about": "Chi siamo",
+    "home": "Home",
+    "search": "Cerca",
+    "loading": "Caricamento...",
+    "error": "Errore",
+    "success": "Successo"
+  },
+  "header": {
+    "tagline": "Scopri le delizie culinarie",
+    "aboutUs": "Chi siamo",
+    "recipes": "Ricette",
+    "signInButton": "Accedi",
+    "registerButton": "Registrati"
+  },
+  "home": {
+    "hero": {
+      "title": "Scopri le delizie culinarie",
+      "subtitle": "Da tutto il mondo",
+      "description": "Esplora ricette autentiche, connettiti con gli amanti del cibo e intraprendi un viaggio culinario globale dalla tua cucina.",
+      "searchPlaceholder": "Cerca ricette, cucine o ingredienti...",
+      "searchButton": "Cerca"
+    },
+    "cuisines": {
+      "title": "Esplora le cucine del mondo",
+      "subtitle": "Scopri sapori autentici da ogni angolo del mondo",
+      "viewRecipes": "Vedi ricette"
+    },
+    "trending": {
+      "title": "Ricette popolari",
+      "subtitle": "Le ricette più popolari di questa settimana",
+      "mins": "min",
+      "servings": "porzioni"
+    },
+    "cta": {
+      "title": "Pronto a iniziare il tuo viaggio culinario?",
+      "subtitle": "Unisciti a migliaia di appassionati di cucina che scoprono e condividono ricette da tutto il mondo.",
+      "button": "Iscriviti gratis"
+    }
+  },
+  "about": {
+    "title": "Chi è GlobalBites",
+    "subtitle": "La tua porta verso la cucina mondiale",
+    "mission": {
+      "title": "La nostra missione",
+      "description": "In GlobalBites, crediamo che il cibo sia un linguaggio universale che connette le persone attraverso culture e confini."
+    },
+    "vision": {
+      "title": "La nostra visione",
+      "description": "Creare una comunità globale dove chiunque possa esplorare, imparare e condividere esperienze culinarie autentiche."
+    },
+    "values": {
+      "title": "I nostri valori",
+      "authenticity": "Autenticità",
+      "authenticityDesc": "Preservare ricette e tecniche tradizionali",
+      "community": "Comunità",
+      "communityDesc": "Connettere gli amanti del cibo in tutto il mondo",
+      "discovery": "Scoperta",
+      "discoveryDesc": "Incoraggiare l'esplorazione culinaria"
+    }
+  },
+  "auth": {
+    "signIn": {
+      "title": "Bentornato!",
+      "subtitle": "Accedi per scoprire ricette incredibili da tutto il mondo",
+      "email": "Indirizzo email",
+      "emailPlaceholder": "tu@esempio.com",
+      "password": "Password",
+      "passwordPlaceholder": "••••••••",
+      "rememberMe": "Ricordami",
+      "forgotPassword": "Password dimenticata?",
+      "signInButton": "Accedi",
+      "signingIn": "Accesso in corso...",
+      "orContinueWith": "Oppure continua con",
+      "noAccount": "Non hai un account?",
+      "signUpLink": "Iscriviti gratis",
+      "invalidCredentials": "Email o password non validi."
+    },
+    "register": {
+      "title": "Unisciti a GlobalBites",
+      "subtitle": "Inizia oggi il tuo viaggio culinario",
+      "fullName": "Nome completo",
+      "fullNamePlaceholder": "Mario Rossi",
+      "email": "Indirizzo email",
+      "emailPlaceholder": "tu@esempio.com",
+      "password": "Password",
+      "passwordPlaceholder": "••••••••",
+      "confirmPassword": "Conferma password",
+      "confirmPasswordPlaceholder": "••••••••",
+      "agreeToTerms": "Accetto i",
+      "termsOfService": "Termini di servizio",
+      "and": "e la",
+      "privacyPolicy": "Privacy Policy",
+      "registerButton": "Crea account",
+      "creating": "Creazione account...",
+      "haveAccount": "Hai già un account?",
+      "signInLink": "Accedi"
+    },
+    "forgotPassword": {
+      "title": "Reimposta la password",
+      "subtitle": "Inserisci la tua email e ti invieremo un link per reimpostare",
+      "email": "Indirizzo email",
+      "emailPlaceholder": "tu@esempio.com",
+      "sendButton": "Invia link",
+      "sending": "Invio in corso...",
+      "backToSignIn": "Torna all'accesso",
+      "checkEmail": "Controlla la tua email per il link di reimpostazione"
+    }
+  },
+  "account": {
+    "welcome": "Bentornato",
+    "tabs": {
+      "overview": "Panoramica",
+      "myRecipes": "Le mie ricette",
+      "activity": "Attività",
+      "settings": "Impostazioni",
+      "statistics": "Statistiche"
+    },
+    "recipes": "Ricette",
+    "followers": "Follower",
+    "following": "Seguiti"
+  },
+  "cuisines": {
+    "italian": "Italiana",
+    "japanese": "Giapponese",
+    "mexican": "Messicana",
+    "indian": "Indiana",
+    "french": "Francese",
+    "thai": "Tailandese",
+    "chinese": "Cinese",
+    "greek": "Greca"
+  }
+}

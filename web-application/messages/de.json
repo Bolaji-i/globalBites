@@ -1,0 +1,139 @@
+{
+  "common": {
+    "signIn": "Anmelden",
+    "register": "Registrieren",
+    "signOut": "Abmelden",
+    "account": "Konto",
+    "myAccount": "Mein Konto",
+    "about": "Über uns",
+    "home": "Startseite",
+    "search": "Suchen",
+    "loading": "Laden...",
+    "error": "Fehler",
+    "success": "Erfolg"
+  },
+  "header": {
+    "tagline": "Entdecke kulinarische Köstlichkeiten",
+    "aboutUs": "Über uns",
+    "recipes": "Rezepte",
+    "signInButton": "Anmelden",
+    "registerButton": "Registrieren"
+  },
+  "home": {
+    "hero": {
+      "title": "Entdecke kulinarische Köstlichkeiten",
+      "subtitle": "Aus aller Welt",
+      "description": "Erkunde authentische Rezepte, verbinde dich mit Feinschmeckern und begib dich auf eine globale kulinarische Reise von deiner Küche aus.",
+      "searchPlaceholder": "Suche nach Rezepten, Küchen oder Zutaten...",
+      "searchButton": "Suchen"
+    },
+    "cuisines": {
+      "title": "Entdecke globale Küchen",
+      "subtitle": "Entdecke authentische Geschmäcker aus allen Ecken der Welt",
+      "viewRecipes": "Rezepte ansehen"
+    },
+    "trending": {
+      "title": "Beliebte Rezepte",
+      "subtitle": "Die beliebtesten Rezepte dieser Woche",
+      "mins": "Min",
+      "servings": "Portionen"
+    },
+    "cta": {
+      "title": "Bereit für deine kulinarische Reise?",
+      "subtitle": "Schließe dich Tausenden von Feinschmeckern an, die Rezepte aus aller Welt entdecken und teilen.",
+      "button": "Kostenlos registrieren"
+    }
+  },
+  "about": {
+    "title": "Über GlobalBites",
+    "subtitle": "Dein Tor zur Weltküche",
+    "mission": {
+      "title": "Unsere Mission",
+      "description": "Bei GlobalBites glauben wir, dass Essen eine universelle Sprache ist, die Menschen über Kulturen und Grenzen hinweg verbindet."
+    },
+    "vision": {
+      "title": "Unsere Vision",
+      "description": "Eine globale Gemeinschaft zu schaffen, in der jeder authentische kulinarische Erfahrungen erkunden, lernen und teilen kann."
+    },
+    "values": {
+      "title": "Unsere Werte",
+      "authenticity": "Authentizität",
+      "authenticityDesc": "Bewahrung traditioneller Rezepte und Techniken",
+      "community": "Gemeinschaft",
+      "communityDesc": "Verbindung von Feinschmeckern weltweit",
+      "discovery": "Entdeckung",
+      "discoveryDesc": "Förderung kulinarischer Erkundung"
+    }
+  },
+  "auth": {
+    "signIn": {
+      "title": "Willkommen zurück!",
+      "subtitle": "Melde dich an, um erstaunliche Rezepte aus aller Welt zu entdecken",
+      "email": "E-Mail-Adresse",
+      "emailPlaceholder": "du@beispiel.de",
+      "password": "Passwort",
+      "passwordPlaceholder": "••••••••",
+      "rememberMe": "Angemeldet bleiben",
+      "forgotPassword": "Passwort vergessen?",
+      "signInButton": "Anmelden",
+      "signingIn": "Anmeldung läuft...",
+      "orContinueWith": "Oder fortfahren mit",
+      "noAccount": "Noch kein Konto?",
+      "signUpLink": "Kostenlos registrieren",
+      "invalidCredentials": "Ungültige E-Mail oder Passwort."
+    },
+    "register": {
+      "title": "Tritt GlobalBites bei",
+      "subtitle": "Starte heute deine kulinarische Reise",
+      "fullName": "Vollständiger Name",
+      "fullNamePlaceholder": "Max Mustermann",
+      "email": "E-Mail-Adresse",
+      "emailPlaceholder": "du@beispiel.de",
+      "password": "Passwort",
+      "passwordPlaceholder": "••••••••",
+      "confirmPassword": "Passwort bestätigen",
+      "confirmPasswordPlaceholder": "••••••••",
+      "agreeToTerms": "Ich stimme den",
+      "termsOfService": "Nutzungsbedingungen",
+      "and": "und der",
+      "privacyPolicy": "Datenschutzrichtlinie",
+      "registerButton": "Konto erstellen",
+      "creating": "Konto wird erstellt...",
+      "haveAccount": "Bereits ein Konto?",
+      "signInLink": "Anmelden"
+    },
+    "forgotPassword": {
+      "title": "Passwort zurücksetzen",
+      "subtitle": "Gib deine E-Mail ein und wir senden dir einen Link zum Zurücksetzen",
+      "email": "E-Mail-Adresse",
+      "emailPlaceholder": "du@beispiel.de",
+      "sendButton": "Link senden",
+      "sending": "Wird gesendet...",
+      "backToSignIn": "Zurück zur Anmeldung",
+      "checkEmail": "Prüfe deine E-Mail für den Link zum Zurücksetzen des Passworts"
+    }
+  },
+  "account": {
+    "welcome": "Willkommen zurück",
+    "tabs": {
+      "overview": "Übersicht",
+      "myRecipes": "Meine Rezepte",
+      "activity": "Aktivität",
+      "settings": "Einstellungen",
+      "statistics": "Statistiken"
+    },
+    "recipes": "Rezepte",
+    "followers": "Follower",
+    "following": "Folge ich"
+  },
+  "cuisines": {
+    "italian": "Italienisch",
+    "japanese": "Japanisch",
+    "mexican": "Mexikanisch",
+    "indian": "Indisch",
+    "french": "Französisch",
+    "thai": "Thailändisch",
+    "chinese": "Chinesisch",
+    "greek": "Griechisch"
+  }
+}

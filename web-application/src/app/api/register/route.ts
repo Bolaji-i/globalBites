@@ -8,12 +8,20 @@ import { createUser, userExists } from '@/lib/users';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, email, password } = body;
+    const { firstName, lastName, email, password } = body;
 
     // Validation
-    if (!name || !email || !password) {
+    if (!firstName || !lastName || !email || !password) {
       return NextResponse.json(
-        { error: 'Missing required fields', message: 'Please provide name, email, and password' },
+        { error: 'Missing required fields', message: 'Please provide first name, last name, email, and password' },
+        { status: 400 }
+      );
+    }
+
+    // Validate name lengths
+    if (firstName.trim().length < 1 || lastName.trim().length < 1) {
+      return NextResponse.json(
+        { error: 'Invalid name', message: 'First name and last name cannot be empty' },
         { status: 400 }
       );
     }
@@ -36,7 +44,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user already exists
-    if (userExists(email)) {
+    const exists = await userExists(email);
+    if (exists) {
       return NextResponse.json(
         { error: 'User exists', message: 'An account with this email already exists' },
         { status: 409 }
@@ -44,7 +53,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create new user
-    const newUser = await createUser(name, email, password);
+    const newUser = await createUser({ firstName, lastName, email, password });
 
     // Return success (don't send password back)
     return NextResponse.json(
@@ -53,7 +62,8 @@ export async function POST(request: NextRequest) {
         message: 'Account created successfully',
         user: {
           id: newUser.id,
-          name: newUser.name,
+          firstName: newUser.firstName,
+          lastName: newUser.lastName,
           email: newUser.email,
         },
       },
@@ -79,7 +89,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Email parameter required' }, { status: 400 });
   }
 
-  const exists = userExists(email);
+  const exists = await userExists(email);
 
   return NextResponse.json({ exists });
 }

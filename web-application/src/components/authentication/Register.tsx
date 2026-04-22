@@ -9,7 +9,8 @@ export default function Register() {
   const router = useRouter();
   
   const [formData, setFormData] = useState({
-    fullName: '',
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -20,7 +21,8 @@ export default function Register() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({
-    fullName: '',
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -47,7 +49,8 @@ export default function Register() {
 
   const validateForm = (): boolean => {
     const errors = {
-      fullName: '',
+      firstName: '',
+      lastName: '',
       email: '',
       password: '',
       confirmPassword: '',
@@ -55,12 +58,21 @@ export default function Register() {
     
     let isValid = true;
 
-    // Full name validation
-    if (!formData.fullName.trim()) {
-      errors.fullName = 'Name is required';
+    // First name validation
+    if (!formData.firstName.trim()) {
+      errors.firstName = 'First name is required';
       isValid = false;
-    } else if (formData.fullName.trim().length < 2) {
-      errors.fullName = 'Name must be at least 2 characters';
+    } else if (formData.firstName.trim().length < 1) {
+      errors.firstName = 'First name cannot be empty';
+      isValid = false;
+    }
+
+    // Last name validation
+    if (!formData.lastName.trim()) {
+      errors.lastName = 'Last name is required';
+      isValid = false;
+    } else if (formData.lastName.trim().length < 1) {
+      errors.lastName = 'Last name cannot be empty';
       isValid = false;
     }
 
@@ -121,7 +133,8 @@ export default function Register() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name: formData.fullName,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
           email: formData.email,
           password: formData.password,
         }),
@@ -201,31 +214,62 @@ export default function Register() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Full Name Field */}
-            <div>
-              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Full Name
-              </label>
-              <div className="mt-1">
-                <input
-                  id="fullName"
-                  name="fullName"
-                  type="text"
-                  autoComplete="name"
-                  required
-                  value={formData.fullName}
-                  onChange={handleChange}
-                  disabled={isLoading}
-                  className={`block w-full rounded-lg border px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50 dark:text-white dark:placeholder-gray-500 ${
-                    fieldErrors.fullName 
-                      ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20 dark:border-red-500' 
-                      : 'border-gray-300 focus:border-pink-500 focus:ring-pink-500/20 dark:border-gray-600 dark:bg-gray-700'
-                  }`}
-                  placeholder="John Doe"
-                />
-                {fieldErrors.fullName && (
-                  <p className="mt-1 text-xs text-red-600 dark:text-red-400">{fieldErrors.fullName}</p>
-                )}
+            {/* Name Fields */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              {/* First Name Field */}
+              <div>
+                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  First Name
+                </label>
+                <div className="mt-1">
+                  <input
+                    id="firstName"
+                    name="firstName"
+                    type="text"
+                    autoComplete="given-name"
+                    required
+                    value={formData.firstName}
+                    onChange={handleChange}
+                    disabled={isLoading}
+                    className={`block w-full rounded-lg border px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50 dark:text-white dark:placeholder-gray-500 ${
+                      fieldErrors.firstName 
+                        ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20 dark:border-red-500' 
+                        : 'border-gray-300 focus:border-pink-500 focus:ring-pink-500/20 dark:border-gray-600 dark:bg-gray-700'
+                    }`}
+                    placeholder="John"
+                  />
+                  {fieldErrors.firstName && (
+                    <p className="mt-1 text-xs text-red-600 dark:text-red-400">{fieldErrors.firstName}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Last Name Field */}
+              <div>
+                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Last Name
+                </label>
+                <div className="mt-1">
+                  <input
+                    id="lastName"
+                    name="lastName"
+                    type="text"
+                    autoComplete="family-name"
+                    required
+                    value={formData.lastName}
+                    onChange={handleChange}
+                    disabled={isLoading}
+                    className={`block w-full rounded-lg border px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50 dark:text-white dark:placeholder-gray-500 ${
+                      fieldErrors.lastName 
+                        ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20 dark:border-red-500' 
+                        : 'border-gray-300 focus:border-pink-500 focus:ring-pink-500/20 dark:border-gray-600 dark:bg-gray-700'
+                    }`}
+                    placeholder="Doe"
+                  />
+                  {fieldErrors.lastName && (
+                    <p className="mt-1 text-xs text-red-600 dark:text-red-400">{fieldErrors.lastName}</p>
+                  )}
+                </div>
               </div>
             </div>
 

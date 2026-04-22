@@ -27,7 +27,7 @@ export default function SignIn() {
       });
 
       if (result?.error) {
-        setError('Invalid email or password. Try test@globalbites.com / password123');
+        setError('Invalid email or password.');
       } else {
         // Redirect to account page on success
         router.push('/account');
@@ -71,13 +71,6 @@ export default function SignIn() {
 
         {/* Sign In Form */}
         <div className="mt-8 rounded-2xl bg-white p-8 shadow-xl dark:bg-gray-800">
-          {/* Development Note */}
-          <div className="mb-6 rounded-lg bg-blue-50 border border-blue-200 p-3 dark:bg-blue-900/20 dark:border-blue-800">
-            <p className="text-xs text-blue-800 dark:text-blue-300">
-              <strong>Dev Mode:</strong> test@globalbites.com / password123
-            </p>
-          </div>
-
           {/* Error Message */}
           {error && (
             <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 dark:bg-red-900/20 dark:border-red-800">

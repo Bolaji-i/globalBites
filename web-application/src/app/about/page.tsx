@@ -1,6 +1,11 @@
+import Link from 'next/link';
 import Header from '@/components/Header';
+import { auth } from '@/app/api/auth/[...nextauth]/route';
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const session = await auth();
+  const isAuthenticated = !!session?.user;
+
   return (
     <div className="min-h-screen">
       <Header />
@@ -104,17 +109,47 @@ export default function AboutPage() {
 
             {/* Call to Action */}
             <div className="text-center">
-              <p className="mb-6 text-xl text-gray-700 dark:text-gray-300">
-                Join our growing community of food enthusiasts!
-              </p>
-              <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
-                <button className="rounded-lg bg-gradient-to-r from-pink-500 to-rose-500 px-8 py-3 text-lg font-semibold text-white shadow-lg transition-all hover:from-pink-600 hover:to-rose-600 hover:shadow-xl">
-                  Get Started
-                </button>
-                <button className="rounded-lg border-2 border-pink-500 px-8 py-3 text-lg font-semibold text-pink-600 transition-all hover:bg-pink-50 dark:border-pink-400 dark:text-pink-400 dark:hover:bg-pink-950">
-                  Learn More
-                </button>
-              </div>
+              {isAuthenticated ? (
+                <>
+                  <p className="mb-6 text-xl text-gray-700 dark:text-gray-300">
+                    Ready to explore? Pick up where you left off.
+                  </p>
+                  <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
+                    <Link
+                      href="/recipes"
+                      className="rounded-lg bg-gradient-to-r from-pink-500 to-rose-500 px-8 py-3 text-lg font-semibold text-white shadow-lg transition-all hover:from-pink-600 hover:to-rose-600 hover:shadow-xl"
+                    >
+                      Browse Recipes
+                    </Link>
+                    <Link
+                      href="/account"
+                      className="rounded-lg border-2 border-pink-500 px-8 py-3 text-lg font-semibold text-pink-600 transition-all hover:bg-pink-50 dark:border-pink-400 dark:text-pink-400 dark:hover:bg-pink-950"
+                    >
+                      Go to Account
+                    </Link>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p className="mb-6 text-xl text-gray-700 dark:text-gray-300">
+                    Join our growing community of food enthusiasts!
+                  </p>
+                  <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
+                    <Link
+                      href="/register"
+                      className="rounded-lg bg-gradient-to-r from-pink-500 to-rose-500 px-8 py-3 text-lg font-semibold text-white shadow-lg transition-all hover:from-pink-600 hover:to-rose-600 hover:shadow-xl"
+                    >
+                      Get Started
+                    </Link>
+                    <Link
+                      href="/recipes"
+                      className="rounded-lg border-2 border-pink-500 px-8 py-3 text-lg font-semibold text-pink-600 transition-all hover:bg-pink-50 dark:border-pink-400 dark:text-pink-400 dark:hover:bg-pink-950"
+                    >
+                      Learn More
+                    </Link>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>

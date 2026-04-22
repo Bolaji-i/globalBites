@@ -10,6 +10,7 @@ export default function Header() {
   const { data: session, status } = useSession();
   const { currentLanguage, setLanguage, languages } = useLanguage();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const t = useTranslation();
 
   const handleSignOut = async () => {
@@ -131,12 +132,101 @@ export default function Header() {
         </nav>
 
         {/* Mobile Menu Button */}
-        <button className="md:hidden rounded-lg p-2 text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800">
+        <button
+          onClick={() => setShowMobileMenu(!showMobileMenu)}
+          aria-label="Toggle menu"
+          aria-expanded={showMobileMenu}
+          className="md:hidden rounded-lg p-2 text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+        >
           <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            {showMobileMenu ? (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            ) : (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            )}
           </svg>
         </button>
       </div>
+
+      {/* Mobile Menu Panel */}
+      {showMobileMenu && (
+        <div className="md:hidden border-t border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
+          <div className="container mx-auto space-y-3 px-4 py-4 sm:px-6">
+            {/* Language Selector */}
+            <div className="relative">
+              <select
+                value={currentLanguage}
+                onChange={(e) => setLanguage(e.target.value as any)}
+                className="w-full cursor-pointer appearance-none rounded-lg border border-gray-300 bg-white px-4 py-2 pr-10 text-sm font-medium text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
+              >
+                {languages.map((lang) => (
+                  <option key={lang.code} value={lang.code}>
+                    {lang.flag} {lang.name}
+                  </option>
+                ))}
+              </select>
+              <svg
+                className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+
+            <Link
+              href="/about"
+              onClick={() => setShowMobileMenu(false)}
+              className="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+            >
+              {t.header.aboutUs}
+            </Link>
+
+            {status === 'loading' ? null : session ? (
+              <>
+                <div className="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">{session.user?.name}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{session.user?.email}</p>
+                </div>
+                <Link
+                  href="/account"
+                  onClick={() => setShowMobileMenu(false)}
+                  className="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+                >
+                  {t.common.myAccount}
+                </Link>
+                <button
+                  onClick={() => {
+                    setShowMobileMenu(false);
+                    handleSignOut();
+                  }}
+                  className="block w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950"
+                >
+                  {t.common.signOut}
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/sign-in"
+                  onClick={() => setShowMobileMenu(false)}
+                  className="block rounded-lg border border-gray-300 px-4 py-2 text-center text-sm font-medium text-gray-700 dark:border-gray-700 dark:text-gray-300"
+                >
+                  {t.header.signInButton}
+                </Link>
+                <Link
+                  href="/register"
+                  onClick={() => setShowMobileMenu(false)}
+                  className="block rounded-lg bg-gradient-to-r from-pink-500 to-rose-500 px-5 py-2 text-center text-sm font-semibold text-white shadow-md"
+                >
+                  {t.header.registerButton}
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </header>
   );
 }

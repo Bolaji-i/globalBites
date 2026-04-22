@@ -22,8 +22,8 @@ export const siteConfig = {
     authentication: true,
     userAccounts: true,
     socialLogin: true,
-    emailVerification: false, // TODO: Enable when implemented
-    passwordReset: false, // TODO: Enable when implemented
+    emailVerification: false,
+    passwordReset: true,
   },
   
   cuisines: [

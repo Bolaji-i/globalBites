@@ -1,34 +1,54 @@
 'use client';
 
 import { useState } from 'react';
+import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import ProfileOverview from './ProfileOverview';
 import MyRecipes from './MyRecipes';
 import ActivityFeed from './ActivityFeed';
 import AccountSettings from './AccountSettings';
 import Statistics from './Statistics';
+import ProfilePictureUpload from './ProfilePictureUpload';
 
-export default function UserAccount() {
+export interface UserAccountUser {
+  id: string;
+  firstName: string;
+  lastName: string;
+  name: string;
+  username: string;
+  email: string;
+  image: string | null;
+  location: string;
+  bio: string;
+  website: string;
+  skillLevel: string;
+  measurementSystem: string;
+  language: string;
+  profileVisibility: string;
+  showEmail: boolean;
+  showLocation: boolean;
+  joinedDate: string;
+}
+
+interface UserAccountProps {
+  user: UserAccountUser;
+}
+
+export default function UserAccount({ user }: UserAccountProps) {
   const [activeTab, setActiveTab] = useState('overview');
+  const [currentImage, setCurrentImage] = useState(user.image);
+  const { update } = useSession();
 
-  // Mock user data - replace with real data from authentication
-  const user = {
-    id: '1',
-    name: 'Sarah Johnson',
-    username: 'sarahcooks',
-    email: 'sarah@example.com',
-    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80',
-    location: 'New York, USA',
-    bio: 'Food lover exploring cuisines from around the world. Passionate about authentic recipes and cultural cooking traditions.',
-    joinedDate: 'January 2025',
-    stats: {
-      recipesCreated: 24,
-      recipesSaved: 156,
-      followers: 342,
-      following: 189,
-      countriesExplored: 28,
-      totalRecipesTried: 89,
-    },
+  const handleImageChange = async (imageUrl: string) => {
+    setCurrentImage(imageUrl);
+    // Persist to the database
+    await fetch('/api/user/settings', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: imageUrl }),
+    });
+    // Update the session so the navbar avatar refreshes
+    await update({ image: imageUrl });
   };
 
   const tabs = [
@@ -48,44 +68,33 @@ export default function UserAccount() {
             {/* Avatar */}
             <div className="relative">
               <div className="relative h-32 w-32 overflow-hidden rounded-full border-4 border-white shadow-xl">
-                <Image
-                  src={user.avatar}
-                  alt={user.name}
-                  fill
-                  className="object-cover"
-                />
+                {currentImage ? (
+                  <Image
+                    src={currentImage}
+                    alt={user.name}
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center bg-gray-300 text-4xl font-bold text-gray-600">
+                    {user.firstName.charAt(0)}{user.lastName.charAt(0)}
+                  </div>
+                )}
               </div>
-              <button className="absolute bottom-0 right-0 rounded-full bg-white p-2 shadow-lg transition-transform hover:scale-110">
-                <svg className="h-5 w-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              </button>
+              <ProfilePictureUpload
+                currentImage={currentImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&size=200&background=ec4899&color=fff`}
+                userName={user.name}
+                onImageChange={handleImageChange}
+              />
             </div>
 
             {/* User Info */}
             <div className="flex-1 text-center md:text-left">
               <h1 className="text-3xl font-bold text-white">{user.name}</h1>
-              <p className="text-white/90">@{user.username}</p>
+              {user.username && <p className="text-white/90">@{user.username}</p>}
               <p className="mt-2 text-sm text-white/80">
-                📍 {user.location} • Joined {user.joinedDate}
+                {user.location && <>📍 {user.location} • </>}Joined {user.joinedDate}
               </p>
-            </div>
-
-            {/* Stats */}
-            <div className="grid grid-cols-3 gap-6 rounded-2xl bg-white/10 p-4 backdrop-blur-lg md:gap-8">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-white">{user.stats.recipesCreated}</div>
-                <div className="text-xs text-white/80">Recipes</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-white">{user.stats.followers}</div>
-                <div className="text-xs text-white/80">Followers</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-white">{user.stats.following}</div>
-                <div className="text-xs text-white/80">Following</div>
-              </div>
             </div>
           </div>
         </div>
@@ -117,9 +126,9 @@ export default function UserAccount() {
         <div className="mb-8">
           {activeTab === 'overview' && <ProfileOverview user={user} />}
           {activeTab === 'recipes' && <MyRecipes user={user} />}
-          {activeTab === 'activity' && <ActivityFeed user={user} />}
+          {activeTab === 'activity' && <ActivityFeed />}
           {activeTab === 'settings' && <AccountSettings user={user} />}
-          {activeTab === 'statistics' && <Statistics user={user} />}
+          {activeTab === 'statistics' && <Statistics />}
         </div>
       </div>
     </div>

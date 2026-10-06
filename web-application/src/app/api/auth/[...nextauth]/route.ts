@@ -50,7 +50,8 @@ export const authConfig: NextAuthConfig = {
               id: user.id,
               email: user.email,
               name: `${user.firstName} ${user.lastName}`,
-              image: user.image,
+              // No image: uploaded pictures are base64 data URLs, far too
+              // large for the session cookie. Pages read it from the database.
             };
           }
         }
@@ -72,13 +73,18 @@ export const authConfig: NextAuthConfig = {
       // Initial sign in
       if (user) {
         token.id = user.id;
-        token.image = user.image;
       }
-      
-      // Handle session updates (e.g., profile picture change)
-      if (trigger === 'update' && session) {
+
+      // Handle session updates (e.g., a changed display name)
+      if (trigger === 'update' && session?.name) {
         token.name = session.name;
-        token.image = session.image;
+      }
+
+      // The token is stored in a cookie, so an inline image must never ride
+      // along in it. This also shrinks tokens issued before this guard existed.
+      delete token.image;
+      if (typeof token.picture === 'string' && token.picture.startsWith('data:')) {
+        delete token.picture;
       }
       
       return token;
@@ -88,7 +94,6 @@ export const authConfig: NextAuthConfig = {
       // Add user data to session
       if (token && session.user) {
         session.user.id = token.id as string;
-        session.user.image = token.image as string | null;
       }
       
       return session;

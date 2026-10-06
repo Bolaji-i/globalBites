@@ -35,7 +35,7 @@ export default async function AccountPage() {
     profileVisibility: dbUser.profileVisibility || '',
     showEmail: dbUser.showEmail,
     showLocation: dbUser.showLocation,
-    joinedDate: dbUser.createdAt.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+    joinedAt: dbUser.createdAt.toISOString(),
   };
 
   return (

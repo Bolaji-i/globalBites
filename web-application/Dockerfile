@@ -22,6 +22,7 @@ EXPOSE 3000
 
 # Set environment to development
 ENV NODE_ENV=development
+ENV PORT=3000
 
 # Start the development server
 CMD ["npm", "run", "dev"]

@@ -3,10 +3,13 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { signIn } from 'next-auth/react';
+import { Logo } from '@/components/ui';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 export default function SignIn() {
   const router = useRouter();
+  const t = useTranslations('auth.signIn');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -27,14 +30,14 @@ export default function SignIn() {
       });
 
       if (result?.error) {
-        setError('Invalid email or password.');
+        setError(t('invalidCredentials'));
       } else {
         // Redirect to account page on success
         router.push('/account');
         router.refresh();
       }
     } catch (err) {
-      setError('An error occurred. Please try again.');
+      setError(t('errorOccurred'));
     } finally {
       setIsLoading(false);
     }
@@ -45,32 +48,32 @@ export default function SignIn() {
     try {
       await signIn(provider, { callbackUrl: '/account' });
     } catch (err) {
-      setError(`Failed to sign in with ${provider}`);
+      setError(t('socialFailed', { provider: provider === 'google' ? 'Google' : 'GitHub' }));
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-pink-50 via-rose-50 to-red-50 px-4 py-12 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 sm:px-6 lg:px-8">
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-12 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 sm:px-6 lg:px-8">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center">
           <Link href="/" className="inline-flex items-center gap-2">
-            <span className="text-4xl">🍽️</span>
-            <h1 className="bg-gradient-to-r from-pink-500 via-rose-500 to-red-500 bg-clip-text text-3xl font-bold text-transparent">
+            <Logo className="h-9 w-9 text-teal-600 dark:text-teal-400" />
+            <h1 className="text-3xl font-bold text-teal-600 dark:text-teal-400">
               globalBites
             </h1>
           </Link>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900 dark:text-white">
-            Welcome Back!
+          <h2 className="mt-6 text-3xl font-bold text-slate-900 dark:text-white">
+            {t('title')}
           </h2>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            Sign in to discover amazing recipes from around the world
+          <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+            {t('subtitle')}
           </p>
         </div>
 
         {/* Sign In Form */}
-        <div className="mt-8 rounded-2xl bg-white p-8 shadow-xl dark:bg-gray-800">
+        <div className="mt-8 rounded-lg bg-white p-8 shadow-md dark:bg-slate-900">
           {/* Error Message */}
           {error && (
             <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 dark:bg-red-900/20 dark:border-red-800">
@@ -81,8 +84,8 @@ export default function SignIn() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email Field */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Email Address
+              <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                {t('email')}
               </label>
               <div className="mt-1">
                 <input
@@ -94,16 +97,16 @@ export default function SignIn() {
                   disabled={isLoading}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-pink-500 focus:outline-none focus:ring-2 focus:ring-pink-500/20 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-500"
-                  placeholder="you@example.com"
+                  className="block w-full rounded-lg border border-slate-300 px-4 py-3 text-slate-900 placeholder-slate-400 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500/20 disabled:opacity-50 disabled:cursor-not-allowed dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder-slate-500"
+                  placeholder={t('emailPlaceholder')}
                 />
               </div>
             </div>
 
             {/* Password Field */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Password
+              <label htmlFor="password" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                {t('password')}
               </label>
               <div className="relative mt-1">
                 <input
@@ -115,14 +118,14 @@ export default function SignIn() {
                   disabled={isLoading}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full rounded-lg border border-gray-300 px-4 py-3 pr-12 text-gray-900 placeholder-gray-400 focus:border-pink-500 focus:outline-none focus:ring-2 focus:ring-pink-500/20 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-500"
+                  className="block w-full rounded-lg border border-slate-300 px-4 py-3 pr-12 text-slate-900 placeholder-slate-400 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500/20 disabled:opacity-50 disabled:cursor-not-allowed dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder-slate-500"
                   placeholder="••••••••"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   disabled={isLoading}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 disabled:opacity-50 dark:hover:text-gray-300"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 disabled:opacity-50 dark:hover:text-slate-300"
                 >
                   {showPassword ? (
                     <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -148,18 +151,18 @@ export default function SignIn() {
                   checked={rememberMe}
                   disabled={isLoading}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="h-4 w-4 rounded border-gray-300 text-pink-600 focus:ring-2 focus:ring-pink-500/20 disabled:opacity-50"
+                  className="h-4 w-4 rounded border-slate-300 text-teal-600 focus:ring-2 focus:ring-teal-500/20 disabled:opacity-50"
                 />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-                  Remember me
+                <label htmlFor="remember-me" className="ml-2 block text-sm text-slate-700 dark:text-slate-300">
+                  {t('rememberMe')}
                 </label>
               </div>
 
               <Link
                 href="/forgot-password"
-                className="text-sm font-medium text-pink-600 hover:text-pink-500 dark:text-pink-400"
+                className="text-sm font-medium text-teal-600 hover:text-teal-600 dark:text-teal-400"
               >
-                Forgot password?
+                {t('forgotPassword')}
               </Link>
             </div>
 
@@ -167,20 +170,20 @@ export default function SignIn() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full rounded-lg bg-gradient-to-r from-pink-500 via-rose-500 to-red-500 px-4 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:from-pink-600 hover:via-rose-600 hover:to-red-600 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-pink-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full rounded-lg bg-teal-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? 'Signing in...' : 'Sign In'}
+              {isLoading ? t('signingIn') : t('signInButton')}
             </button>
           </form>
 
           {/* Divider */}
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
+              <div className="w-full border-t border-slate-300 dark:border-slate-700"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="bg-white px-4 text-gray-500 dark:bg-gray-800 dark:text-gray-400">
-                Or continue with
+              <span className="bg-white px-4 text-slate-500 dark:bg-slate-900 dark:text-slate-400">
+                {t('orContinueWith')}
               </span>
             </div>
           </div>
@@ -190,7 +193,7 @@ export default function SignIn() {
             <button
               onClick={() => handleSocialSignIn('google')}
               disabled={isLoading}
-              className="flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+              className="flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
             >
               <svg className="h-5 w-5" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -204,7 +207,7 @@ export default function SignIn() {
             <button
               onClick={() => handleSocialSignIn('github')}
               disabled={isLoading}
-              className="flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+              className="flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
             >
               <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
@@ -214,10 +217,10 @@ export default function SignIn() {
           </div>
 
           {/* Sign Up Link */}
-          <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-            Don't have an account?{' '}
-            <Link href="/register" className="font-medium text-pink-600 hover:text-pink-500 dark:text-pink-400">
-              Sign up for free
+          <p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400">
+            {t('noAccount')}{' '}
+            <Link href="/register" className="font-medium text-teal-600 hover:text-teal-600 dark:text-teal-400">
+              {t('signUpLink')}
             </Link>
           </p>
         </div>

@@ -3,9 +3,12 @@
 import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { Logo } from '@/components/ui';
+import { useTranslations } from 'next-intl';
 
 function ResetPasswordForm() {
   const router = useRouter();
+  const t = useTranslations('auth.resetPassword');
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
 
@@ -29,10 +32,10 @@ function ResetPasswordForm() {
         setTokenValid(true);
         setEmail(data.email);
       } else {
-        setError(data.error || 'Invalid or expired reset link');
+        setError(data.error || t('invalidOrExpired'));
       }
     } catch {
-      setError('Failed to validate reset link');
+      setError(t('failedValidate'));
     } finally {
       setValidating(false);
     }
@@ -43,7 +46,7 @@ function ResetPasswordForm() {
       validateToken();
     } else {
       setValidating(false);
-      setError('Invalid reset link');
+      setError(t('invalidResetLink'));
     }
   }, [token, validateToken]);
 
@@ -52,12 +55,12 @@ function ResetPasswordForm() {
     setError('');
 
     if (password.length < 8) {
-      setError('Password must be at least 8 characters long');
+      setError(t('passwordMinLength'));
       return;
     }
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError(t('passwordsMismatch'));
       return;
     }
 
@@ -73,7 +76,7 @@ function ResetPasswordForm() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to reset password');
+        throw new Error(data.error || t('resetFailed'));
       }
 
       setSuccess(true);
@@ -82,7 +85,7 @@ function ResetPasswordForm() {
         router.push('/sign-in');
       }, 3000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong');
+      setError(err instanceof Error ? err.message : t('somethingWrong'));
     } finally {
       setLoading(false);
     }
@@ -90,38 +93,38 @@ function ResetPasswordForm() {
 
   if (validating) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-pink-50 via-rose-50 to-red-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-pink-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Validating reset link...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-600 mx-auto"></div>
+          <p className="mt-4 text-slate-600 dark:text-slate-400">{t('validating')}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-pink-50 via-rose-50 to-red-50 px-4 py-12 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 sm:px-6 lg:px-8">
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-12 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 sm:px-6 lg:px-8">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center">
           <Link href="/" className="inline-flex items-center gap-2">
-            <span className="text-4xl">🍽️</span>
-            <h1 className="bg-gradient-to-r from-pink-500 via-rose-500 to-red-500 bg-clip-text text-3xl font-bold text-transparent">
+            <Logo className="h-9 w-9 text-teal-600 dark:text-teal-400" />
+            <h1 className="text-3xl font-bold text-teal-600 dark:text-teal-400">
               globalBites
             </h1>
           </Link>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900 dark:text-white">
-            {success ? 'Password Reset!' : 'Reset Your Password'}
+          <h2 className="mt-6 text-3xl font-bold text-slate-900 dark:text-white">
+            {success ? t('passwordReset') : t('title')}
           </h2>
           {email && !success && (
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-              Create a new password for {email}
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+              {t('newPasswordFor', { email })}
             </p>
           )}
         </div>
 
         {/* Form or Messages */}
-        <div className="mt-8 rounded-2xl bg-white p-8 shadow-xl dark:bg-gray-800">
+        <div className="mt-8 rounded-lg bg-white p-8 shadow-md dark:bg-slate-900">
           {!tokenValid && !success ? (
             <div className="text-center space-y-6">
               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
@@ -130,14 +133,14 @@ function ResetPasswordForm() {
                 </svg>
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Invalid Link</h3>
-                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{error}</p>
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{t('invalidLink')}</h3>
+                <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">{error}</p>
               </div>
               <Link
                 href="/forgot-password"
-                className="inline-block w-full rounded-lg bg-gradient-to-r from-pink-500 via-rose-500 to-red-500 px-4 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:from-pink-600 hover:via-rose-600 hover:to-red-600"
+                className="inline-block w-full rounded-lg bg-teal-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-teal-700"
               >
-                Request New Link
+                {t('requestNewLink')}
               </Link>
             </div>
           ) : success ? (
@@ -148,16 +151,16 @@ function ResetPasswordForm() {
                 </svg>
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Password Updated!</h3>
-                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                  Your password has been reset successfully. Redirecting to sign in...
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{t('passwordUpdated')}</h3>
+                <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+                  {t('successMessage')}
                 </p>
               </div>
               <Link
                 href="/sign-in"
-                className="inline-block w-full rounded-lg bg-gradient-to-r from-pink-500 via-rose-500 to-red-500 px-4 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:from-pink-600 hover:via-rose-600 hover:to-red-600"
+                className="inline-block w-full rounded-lg bg-teal-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-teal-700"
               >
-                Sign In Now
+                {t('signInNow')}
               </Link>
             </div>
           ) : (
@@ -170,8 +173,8 @@ function ResetPasswordForm() {
 
               {/* New Password */}
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  New Password
+                <label htmlFor="password" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                  {t('newPassword')}
                 </label>
                 <div className="relative mt-1">
                   <input
@@ -180,14 +183,14 @@ function ResetPasswordForm() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="block w-full rounded-lg border border-gray-300 px-4 py-3 pr-12 text-gray-900 placeholder-gray-400 focus:border-pink-500 focus:outline-none focus:ring-2 focus:ring-pink-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                    placeholder="Enter new password"
+                    className="block w-full rounded-lg border border-slate-300 px-4 py-3 pr-12 text-slate-900 placeholder-slate-400 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    placeholder={t('newPasswordPlaceholder')}
                     minLength={8}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
                   >
                     {showPassword ? (
                       <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -205,8 +208,8 @@ function ResetPasswordForm() {
 
               {/* Confirm Password */}
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Confirm New Password
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                  {t('confirmNewPassword')}
                 </label>
                 <div className="relative mt-1">
                   <input
@@ -215,14 +218,14 @@ function ResetPasswordForm() {
                     required
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="block w-full rounded-lg border border-gray-300 px-4 py-3 pr-12 text-gray-900 placeholder-gray-400 focus:border-pink-500 focus:outline-none focus:ring-2 focus:ring-pink-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                    placeholder="Confirm new password"
+                    className="block w-full rounded-lg border border-slate-300 px-4 py-3 pr-12 text-slate-900 placeholder-slate-400 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    placeholder={t('confirmPlaceholder')}
                     minLength={8}
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
                   >
                     {showConfirmPassword ? (
                       <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -239,29 +242,29 @@ function ResetPasswordForm() {
               </div>
 
               {/* Password Requirements */}
-              <div className="text-xs text-gray-500 dark:text-gray-400">
-                Password must be at least 8 characters long
+              <div className="text-xs text-slate-500 dark:text-slate-400">
+                {t('passwordRequirement')}
               </div>
 
               {/* Submit */}
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full rounded-lg bg-gradient-to-r from-pink-500 via-rose-500 to-red-500 px-4 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:from-pink-600 hover:via-rose-600 hover:to-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full rounded-lg bg-teal-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Resetting...' : 'Reset Password'}
+                {loading ? t('resetting') : t('resetButton')}
               </button>
 
               {/* Back to Sign In */}
               <div className="text-center">
                 <Link
                   href="/sign-in"
-                  className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                  className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
                 >
                   <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
-                  Back to Sign In
+                  {t('backToSignIn')}
                 </Link>
               </div>
             </form>
@@ -275,8 +278,8 @@ function ResetPasswordForm() {
 export default function ResetPasswordPage() {
   return (
     <Suspense fallback={
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-pink-50 via-rose-50 to-red-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-pink-500"></div>
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-600"></div>
       </div>
     }>
       <ResetPasswordForm />

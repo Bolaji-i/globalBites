@@ -2,8 +2,11 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Logo } from '@/components/ui';
+import { useTranslations } from 'next-intl';
 
 export default function ForgotPassword() {
+  const t = useTranslations('auth.forgotPassword');
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -24,40 +27,40 @@ export default function ForgotPassword() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to send reset link');
+        throw new Error(data.error || t('sendFailed'));
       }
 
       setIsSubmitted(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong');
+      setError(err instanceof Error ? err.message : t('somethingWrong'));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-pink-50 via-rose-50 to-red-50 px-4 py-12 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 sm:px-6 lg:px-8">
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-12 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 sm:px-6 lg:px-8">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center">
           <Link href="/" className="inline-flex items-center gap-2">
-            <span className="text-4xl">🍽️</span>
-            <h1 className="bg-gradient-to-r from-pink-500 via-rose-500 to-red-500 bg-clip-text text-3xl font-bold text-transparent">
+            <Logo className="h-9 w-9 text-teal-600 dark:text-teal-400" />
+            <h1 className="text-3xl font-bold text-teal-600 dark:text-teal-400">
               globalBites
             </h1>
           </Link>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900 dark:text-white">
-            Forgot Password?
+          <h2 className="mt-6 text-3xl font-bold text-slate-900 dark:text-white">
+            {t('forgotTitle')}
           </h2>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
             {isSubmitted
-              ? "We've sent you a reset link!"
-              : "No worries, we'll send you reset instructions"}
+              ? t('sentResetLink')
+              : t('noWorries')}
           </p>
         </div>
 
         {/* Form or Success Message */}
-        <div className="mt-8 rounded-2xl bg-white p-8 shadow-xl dark:bg-gray-800">
+        <div className="mt-8 rounded-lg bg-white p-8 shadow-md dark:bg-slate-900">
           {!isSubmitted ? (
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Error Message */}
@@ -69,8 +72,8 @@ export default function ForgotPassword() {
 
               {/* Email Field */}
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Email Address
+                <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                  {t('email')}
                 </label>
                 <div className="mt-1">
                   <input
@@ -81,12 +84,12 @@ export default function ForgotPassword() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="block w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-pink-500 focus:outline-none focus:ring-2 focus:ring-pink-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-500"
-                    placeholder="you@example.com"
+                    className="block w-full rounded-lg border border-slate-300 px-4 py-3 text-slate-900 placeholder-slate-400 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder-slate-500"
+                    placeholder={t('emailPlaceholder')}
                   />
                 </div>
-                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  Enter the email address associated with your account
+                <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                  {t('enterEmailHint')}
                 </p>
               </div>
 
@@ -94,21 +97,21 @@ export default function ForgotPassword() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full rounded-lg bg-gradient-to-r from-pink-500 via-rose-500 to-red-500 px-4 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:from-pink-600 hover:via-rose-600 hover:to-red-600 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-pink-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full rounded-lg bg-teal-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Sending...' : 'Send Reset Link'}
+                {loading ? t('sending') : t('sendButton')}
               </button>
 
               {/* Back to Sign In */}
               <div className="text-center">
                 <Link
                   href="/sign-in"
-                  className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                  className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
                 >
                   <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
-                  Back to Sign In
+                  {t('backToSignIn')}
                 </Link>
               </div>
             </form>
@@ -123,13 +126,13 @@ export default function ForgotPassword() {
 
               {/* Success Message */}
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Check Your Email
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                  {t('checkYourEmail')}
                 </h3>
-                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                  We've sent a password reset link to
+                <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+                  {t('sentLinkTo')}
                 </p>
-                <p className="mt-1 font-medium text-pink-600 dark:text-pink-400">
+                <p className="mt-1 font-medium text-teal-600 dark:text-teal-400">
                   {email}
                 </p>
               </div>
@@ -141,11 +144,11 @@ export default function ForgotPassword() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <div className="text-sm text-blue-800 dark:text-blue-300">
-                    <p className="font-medium">Didn't receive the email?</p>
+                    <p className="font-medium">{t('didntReceive')}</p>
                     <ul className="mt-2 space-y-1 text-xs">
-                      <li>• Check your spam folder</li>
-                      <li>• Make sure the email address is correct</li>
-                      <li>• Wait a few minutes and check again</li>
+                      <li>• {t('checkSpam')}</li>
+                      <li>• {t('checkCorrect')}</li>
+                      <li>• {t('waitAndCheck')}</li>
                     </ul>
                   </div>
                 </div>
@@ -155,24 +158,24 @@ export default function ForgotPassword() {
               <div className="space-y-3">
                 <button
                   onClick={() => setIsSubmitted(false)}
-                  className="w-full rounded-lg border-2 border-pink-500 px-4 py-2.5 text-sm font-semibold text-pink-600 transition-colors hover:bg-pink-50 dark:border-pink-400 dark:text-pink-400 dark:hover:bg-pink-950"
+                  className="w-full rounded-lg border-2 border-teal-600 px-4 py-2.5 text-sm font-semibold text-teal-600 transition-colors hover:bg-teal-50 dark:border-teal-400 dark:text-teal-400 dark:hover:bg-teal-950"
                 >
-                  Try Another Email
+                  {t('tryAnotherEmail')}
                 </button>
 
                 <Link
                   href="/sign-in"
-                  className="block w-full rounded-lg bg-gradient-to-r from-pink-500 via-rose-500 to-red-500 px-4 py-2.5 text-center text-sm font-semibold text-white shadow-lg transition-all hover:from-pink-600 hover:via-rose-600 hover:to-red-600 hover:shadow-xl"
+                  className="block w-full rounded-lg bg-teal-600 px-4 py-2.5 text-center text-sm font-semibold text-white shadow-sm transition-all hover:shadow-md"
                 >
-                  Back to Sign In
+                  {t('backToSignIn')}
                 </Link>
               </div>
 
               {/* Support Link */}
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                Still having trouble?{' '}
-                <Link href="/support" className="font-medium text-pink-600 hover:text-pink-500 dark:text-pink-400">
-                  Contact Support
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                {t('stillTrouble')}{' '}
+                <Link href="/support" className="font-medium text-teal-600 hover:text-teal-600 dark:text-teal-400">
+                  {t('contactSupport')}
                 </Link>
               </p>
             </div>
@@ -181,17 +184,17 @@ export default function ForgotPassword() {
 
         {/* Additional Help */}
         {!isSubmitted && (
-          <div className="mt-6 rounded-lg bg-white/50 p-4 backdrop-blur-sm dark:bg-gray-800/50">
+          <div className="mt-6 rounded-lg bg-white/50 p-4 backdrop-blur-sm dark:bg-slate-900/50">
             <div className="flex gap-3">
-              <svg className="h-5 w-5 flex-shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="h-5 w-5 flex-shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
-              <div className="text-xs text-gray-600 dark:text-gray-400">
-                <p className="font-medium">Password reset tips:</p>
+              <div className="text-xs text-slate-600 dark:text-slate-400">
+                <p className="font-medium">{t('resetTips')}</p>
                 <ul className="mt-1 space-y-0.5">
-                  <li>• Link expires in 1 hour</li>
-                  <li>• Can only be used once</li>
-                  <li>• Check spam if not received</li>
+                  <li>• {t('linkExpires')}</li>
+                  <li>• {t('usedOnce')}</li>
+                  <li>• {t('checkSpamTip')}</li>
                 </ul>
               </div>
             </div>

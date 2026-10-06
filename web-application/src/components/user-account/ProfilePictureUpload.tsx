@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback } from 'react';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 
 // Constants for file validation
 const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
@@ -45,6 +46,7 @@ export default function ProfilePictureUpload({
   userName,
   onImageChange,
 }: ProfilePictureUploadProps) {
+  const t = useTranslations('account.picture');
   const [previewUrl, setPreviewUrl] = useState<string>(currentImage);
   const [isUploading, setIsUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -207,7 +209,7 @@ export default function ProfilePictureUpload({
 
   // Remove current image
   const handleRemoveImage = () => {
-    const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&size=200&background=ec4899&color=fff`;
+    const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&size=200&background=0d9488&color=fff`;
     setPreviewUrl(defaultAvatar);
     onImageChange(defaultAvatar);
     setError(null);
@@ -219,10 +221,10 @@ export default function ProfilePictureUpload({
       {/* Camera Button Trigger */}
       <button
         onClick={() => setShowModal(true)}
-        className="absolute bottom-0 right-0 rounded-full bg-white p-2 shadow-lg transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2"
-        aria-label="Change profile picture"
+        className="absolute bottom-0 right-0 rounded-full bg-white p-2 shadow-sm transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
+        aria-label={t('change')}
       >
-        <svg className="h-5 w-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="h-5 w-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
         </svg>
@@ -231,11 +233,11 @@ export default function ProfilePictureUpload({
       {/* Upload Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-800">
+          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-2xl dark:bg-slate-900">
             {/* Modal Header */}
             <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                Change Profile Picture
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                {t('title')}
               </h2>
               <button
                 onClick={() => {
@@ -243,8 +245,8 @@ export default function ProfilePictureUpload({
                   setError(null);
                   setPreviewUrl(currentImage);
                 }}
-                className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700"
-                aria-label="Close modal"
+                className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
+                aria-label={t('close')}
               >
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -254,10 +256,10 @@ export default function ProfilePictureUpload({
 
             {/* Current Preview */}
             <div className="mb-6 flex justify-center">
-              <div className="relative h-32 w-32 overflow-hidden rounded-full border-4 border-pink-200 dark:border-pink-800">
+              <div className="relative h-32 w-32 overflow-hidden rounded-full border-4 border-teal-200 dark:border-teal-800">
                 <Image
                   src={previewUrl}
-                  alt="Profile preview"
+                  alt={t('preview')}
                   fill
                   className="object-cover"
                 />
@@ -277,10 +279,16 @@ export default function ProfilePictureUpload({
                 </svg>
                 <div>
                   <p className="text-sm font-medium text-red-800 dark:text-red-200">
-                    {error.message}
+                    {error.type
+                      ? t(`errors.${error.type}`, {
+                          maxMb: MAX_FILE_SIZE / (1024 * 1024),
+                          min: MIN_DIMENSION,
+                          max: MAX_DIMENSION,
+                        })
+                      : error.message}
                   </p>
                   <p className="mt-1 text-xs text-red-600 dark:text-red-300">
-                    Accepted formats: JPEG, PNG, WebP, GIF (max 5MB)
+                    {t('acceptedFormats')}
                   </p>
                 </div>
               </div>
@@ -294,8 +302,8 @@ export default function ProfilePictureUpload({
               onDrop={handleDrop}
               className={`mb-4 cursor-pointer rounded-xl border-2 border-dashed p-8 text-center transition-colors ${
                 isDragging
-                  ? 'border-pink-500 bg-pink-50 dark:bg-pink-900/20'
-                  : 'border-gray-300 hover:border-pink-400 dark:border-gray-600 dark:hover:border-pink-500'
+                  ? 'border-teal-600 bg-teal-50 dark:bg-teal-900/20'
+                  : 'border-slate-300 hover:border-teal-400 dark:border-slate-700 dark:hover:border-teal-600'
               } ${isUploading ? 'pointer-events-none opacity-50' : ''}`}
               onClick={openFilePicker}
             >
@@ -308,7 +316,7 @@ export default function ProfilePictureUpload({
                 disabled={isUploading}
               />
               <svg
-                className={`mx-auto h-12 w-12 ${isDragging ? 'text-pink-500' : 'text-gray-400'}`}
+                className={`mx-auto h-12 w-12 ${isDragging ? 'text-teal-600' : 'text-slate-400'}`}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -320,14 +328,14 @@ export default function ProfilePictureUpload({
                   d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                 />
               </svg>
-              <p className="mt-4 text-sm font-medium text-gray-700 dark:text-gray-300">
-                {isDragging ? 'Drop your image here' : 'Drag and drop your image here'}
+              <p className="mt-4 text-sm font-medium text-slate-700 dark:text-slate-300">
+                {isDragging ? t('dropHere') : t('dragDrop')}
               </p>
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                or click to browse
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                {t('orBrowse')}
               </p>
-              <p className="mt-3 text-xs text-gray-400 dark:text-gray-500">
-                JPEG, PNG, WebP, or GIF • Max 5MB • Min 100×100px
+              <p className="mt-3 text-xs text-slate-400 dark:text-slate-500">
+                {t('requirements')}
               </p>
             </div>
 
@@ -336,16 +344,16 @@ export default function ProfilePictureUpload({
               <button
                 onClick={handleRemoveImage}
                 disabled={isUploading}
-                className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                className="flex-1 rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
               >
-                Remove Photo
+                {t('remove')}
               </button>
               <button
                 onClick={openFilePicker}
                 disabled={isUploading}
-                className="flex-1 rounded-lg bg-pink-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-pink-700 disabled:opacity-50"
+                className="flex-1 rounded-lg bg-teal-700 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-teal-800 disabled:opacity-50"
               >
-                {isUploading ? 'Uploading...' : 'Choose Photo'}
+                {isUploading ? t('uploading') : t('choose')}
               </button>
             </div>
           </div>

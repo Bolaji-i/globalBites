@@ -2,6 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { UtensilsCrossed, FileText, Heart, ChefHat, Trophy, type LucideIcon } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { useAchievementLabels, useLocaleFormat } from '@/hooks/useLocaleFormat';
+
+const ICON_MAP: Record<string, LucideIcon> = {
+  'file-text': FileText,
+  'heart': Heart,
+  'chef-hat': ChefHat,
+  'trophy': Trophy,
+};
 
 interface ActivityEvent {
   id: string;
@@ -11,6 +21,10 @@ interface ActivityEvent {
   at: string;
   icon: string;
   color: string;
+  // Raw parts of the English `description`, sent so it can be rebuilt per language
+  recipeTitle?: string;
+  authorName?: string;
+  achievementKey?: string;
 }
 
 interface JournalEntry {
@@ -33,30 +47,24 @@ interface ActivityData {
   };
 }
 
-function relativeTime(iso: string): string {
-  const then = new Date(iso).getTime();
-  const now = Date.now();
-  const diff = Math.max(0, now - then);
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'just now';
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  const days = Math.floor(hrs / 24);
-  if (days < 7) return `${days}d ago`;
-  return new Date(iso).toLocaleDateString();
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-}
-
 export default function ActivityFeed() {
+  const t = useTranslations('account.activity');
+  const tDetail = useTranslations('recipes.detail');
+  const achievementLabels = useAchievementLabels();
+  const format = useLocaleFormat();
   const [data, setData] = useState<ActivityData | null>(null);
+
+  const describe = (event: ActivityEvent) => {
+    if (event.type === 'recipe_saved' && event.recipeTitle && event.authorName) {
+      return t('savedBy', { title: event.recipeTitle, author: event.authorName });
+    }
+    if (event.type === 'achievement' && event.achievementKey) {
+      const title = achievementLabels.title(event.achievementKey, '');
+      const description = achievementLabels.description(event.achievementKey, '');
+      if (title && description) return `${title} - ${description}`;
+    }
+    return event.description;
+  };
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -72,8 +80,8 @@ export default function ActivityFeed() {
   if (loading) {
     return (
       <div className="animate-pulse space-y-4">
-        <div className="h-40 rounded-2xl bg-gray-200 dark:bg-gray-700" />
-        <div className="h-40 rounded-2xl bg-gray-200 dark:bg-gray-700" />
+        <div className="h-40 rounded-lg bg-slate-200 dark:bg-slate-800" />
+        <div className="h-40 rounded-lg bg-slate-200 dark:bg-slate-800" />
       </div>
     );
   }
@@ -86,25 +94,28 @@ export default function ActivityFeed() {
     <div className="grid gap-6 lg:grid-cols-3">
       {/* Activity Feed - Left Column */}
       <div className="space-y-6 lg:col-span-2">
-        <div className="rounded-2xl bg-white p-6 shadow-lg dark:bg-gray-800">
-          <h2 className="mb-6 text-xl font-bold text-gray-900 dark:text-white">Recent Activity</h2>
+        <div className="rounded-lg bg-white p-6 shadow-sm dark:bg-slate-900">
+          <h2 className="mb-6 text-xl font-bold text-slate-900 dark:text-white">{t('recent')}</h2>
           {events.length === 0 ? (
-            <div className="py-8 text-center text-sm text-gray-500 dark:text-gray-400">
-              No activity yet. Create a recipe, save a favorite, or log a cook to get started.
+            <div className="py-8 text-center text-sm text-slate-500 dark:text-slate-400">
+              {t('empty')}
             </div>
           ) : (
             <div className="space-y-4">
               {events.map((event) => (
-                <div key={event.id} className="flex gap-4 rounded-lg bg-gray-50 p-4 dark:bg-gray-700/50">
+                <div key={event.id} className="flex gap-4 rounded-lg bg-slate-50 p-4 dark:bg-slate-800/50">
                   <div
-                    className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full ${event.color} text-2xl`}
+                    className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full ${event.color} text-white`}
                   >
-                    {event.icon}
+                    {(() => {
+                      const Icon = ICON_MAP[event.icon];
+                      return Icon ? <Icon className="h-6 w-6" /> : <span className="text-2xl">{event.icon}</span>;
+                    })()}
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900 dark:text-white">{event.title}</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">{event.description}</p>
-                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">{relativeTime(event.at)}</p>
+                    <h3 className="font-semibold text-slate-900 dark:text-white">{t(`events.${event.type}`)}</h3>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">{describe(event)}</p>
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-500">{format.relativeTime(event.at)}</p>
                   </div>
                 </div>
               ))}
@@ -113,19 +124,22 @@ export default function ActivityFeed() {
         </div>
 
         {/* Cooking Journal */}
-        <div className="rounded-2xl bg-white p-6 shadow-lg dark:bg-gray-800">
+        <div className="rounded-lg bg-white p-6 shadow-sm dark:bg-slate-900">
           <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Cooking Journal</h2>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t('journal')}</h2>
             <Link
               href="/recipes"
-              className="text-sm font-medium text-pink-600 hover:text-pink-500 dark:text-pink-400"
+              className="text-sm font-medium text-teal-600 hover:text-teal-600 dark:text-teal-400"
             >
-              Log another
+              {t('logAnother')}
             </Link>
           </div>
           {cookingJournal.length === 0 ? (
-            <div className="py-8 text-center text-sm text-gray-500 dark:text-gray-400">
-              Nothing cooked yet. Open any recipe and tap <span className="font-medium">I cooked this</span>.
+            <div className="py-8 text-center text-sm text-slate-500 dark:text-slate-400">
+              {t.rich('journalEmpty', {
+                action: tDetail('cookedThis'),
+                b: (chunks) => <span className="font-medium">{chunks}</span>,
+              })}
             </div>
           ) : (
             <div className="space-y-4">
@@ -133,24 +147,24 @@ export default function ActivityFeed() {
                 <Link
                   href={`/recipes/${entry.recipeId}`}
                   key={entry.id}
-                  className="flex gap-4 rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50"
+                  className="flex gap-4 rounded-lg border border-slate-200 p-4 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800/50"
                 >
-                  <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200 dark:bg-gray-700">
+                  <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg bg-slate-200 dark:bg-slate-800">
                     {entry.image ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={entry.image} alt={entry.recipe} className="h-full w-full object-cover" />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center text-3xl">🍽️</div>
+                      <div className="flex h-full w-full items-center justify-center"><UtensilsCrossed className="h-8 w-8 text-slate-300" /></div>
                     )}
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900 dark:text-white">{entry.recipe}</h3>
+                    <h3 className="font-semibold text-slate-900 dark:text-white">{entry.recipe}</h3>
                     {entry.rating !== null && (
                       <div className="my-1 flex items-center gap-1">
                         {[...Array(5)].map((_, i) => (
                           <svg
                             key={i}
-                            className={`h-4 w-4 ${i < entry.rating! ? 'text-yellow-400' : 'text-gray-300'}`}
+                            className={`h-4 w-4 ${i < entry.rating! ? 'text-yellow-400' : 'text-slate-300'}`}
                             fill="currentColor"
                             viewBox="0 0 20 20"
                           >
@@ -160,9 +174,9 @@ export default function ActivityFeed() {
                       </div>
                     )}
                     {entry.notes && (
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{entry.notes}</p>
+                      <p className="text-sm text-slate-600 dark:text-slate-400">{entry.notes}</p>
                     )}
-                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">{formatDate(entry.cookedAt)}</p>
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-500">{format.date(entry.cookedAt, { year: 'numeric', month: 'short', day: 'numeric' })}</p>
                   </div>
                 </Link>
               ))}
@@ -173,35 +187,35 @@ export default function ActivityFeed() {
 
       {/* Right Column - This Week */}
       <div className="space-y-6">
-        <div className="rounded-2xl bg-white p-6 shadow-lg dark:bg-gray-800">
-          <h3 className="mb-4 text-lg font-bold text-gray-900 dark:text-white">This Week</h3>
+        <div className="rounded-lg bg-white p-6 shadow-sm dark:bg-slate-900">
+          <h3 className="mb-4 text-lg font-bold text-slate-900 dark:text-white">{t('thisWeek')}</h3>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
-                  <span className="text-lg">📝</span>
+                  <FileText className="h-5 w-5" />
                 </div>
-                <span className="text-sm text-gray-600 dark:text-gray-400">Recipes Created</span>
+                <span className="text-sm text-slate-600 dark:text-slate-400">{t('recipesCreated')}</span>
               </div>
-              <span className="text-xl font-bold text-gray-900 dark:text-white">{thisWeek.recipesCreated}</span>
+              <span className="text-xl font-bold text-slate-900 dark:text-white">{thisWeek.recipesCreated}</span>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-pink-100 dark:bg-pink-900/30">
-                  <span className="text-lg">❤️</span>
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-teal-100 dark:bg-teal-900/30">
+                  <Heart className="h-5 w-5 text-teal-600" />
                 </div>
-                <span className="text-sm text-gray-600 dark:text-gray-400">Recipes Saved</span>
+                <span className="text-sm text-slate-600 dark:text-slate-400">{t('recipesSaved')}</span>
               </div>
-              <span className="text-xl font-bold text-gray-900 dark:text-white">{thisWeek.recipesSaved}</span>
+              <span className="text-xl font-bold text-slate-900 dark:text-white">{thisWeek.recipesSaved}</span>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
-                  <span className="text-lg">🍳</span>
+                  <ChefHat className="h-5 w-5" />
                 </div>
-                <span className="text-sm text-gray-600 dark:text-gray-400">Recipes Cooked</span>
+                <span className="text-sm text-slate-600 dark:text-slate-400">{t('recipesCooked')}</span>
               </div>
-              <span className="text-xl font-bold text-gray-900 dark:text-white">{thisWeek.recipesCooked}</span>
+              <span className="text-xl font-bold text-slate-900 dark:text-white">{thisWeek.recipesCooked}</span>
             </div>
           </div>
         </div>

@@ -99,13 +99,14 @@ export async function GET() {
   const streak = computeStreak(cookingLogsAll.map((l) => l.cookedAt));
 
   // Monthly activity — last 6 months
-  const months: { key: string; label: string; recipes: number; cooked: number; saved: number }[] = [];
+  const months: { key: string; label: string; date: string; recipes: number; cooked: number; saved: number }[] = [];
   const now = new Date();
   for (let i = 5; i >= 0; i--) {
     const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1));
     months.push({
       key: `${d.getUTCFullYear()}-${d.getUTCMonth()}`,
       label: d.toLocaleString('en-US', { month: 'short' }),
+      date: d.toISOString(),
       recipes: 0,
       cooked: 0,
       saved: 0,
@@ -134,7 +135,7 @@ export async function GET() {
     'bg-green-500',
     'bg-red-500',
     'bg-yellow-500',
-    'bg-orange-500',
+    'bg-teal-600',
     'bg-purple-500',
   ];
   const top = cuisineEntries.slice(0, 5).map(([cuisine, count], i) => ({
@@ -154,16 +155,18 @@ export async function GET() {
   }
 
   // Milestones — from unlocked achievements, plus "First Recipe" if they've created one
-  const milestones: { title: string; date: string; icon: string }[] = [];
+  const milestones: { key: string; title: string; date: string; icon: string }[] = [];
   if (firstRecipe) {
     milestones.push({
+      key: 'first_recipe',
       title: 'First Recipe',
       date: firstRecipe.createdAt.toISOString(),
-      icon: '🎯',
+      icon: 'target',
     });
   }
   for (const ua of milestoneAchievements) {
     milestones.push({
+      key: ua.achievement.key,
       title: ua.achievement.title,
       date: ua.unlockedAt.toISOString(),
       icon: ua.achievement.icon,
@@ -180,6 +183,7 @@ export async function GET() {
     },
     monthly: months.map((m) => ({
       month: m.label,
+      date: m.date,
       recipes: m.recipes,
       cooked: m.cooked,
       saved: m.saved,

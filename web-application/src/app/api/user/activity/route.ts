@@ -10,6 +10,10 @@ type ActivityEvent = {
   at: string;
   icon: string;
   color: string;
+  // Raw parts of `description`, so the client can rebuild it per language
+  recipeTitle?: string;
+  authorName?: string;
+  achievementKey?: string;
 };
 
 /**
@@ -88,19 +92,23 @@ export async function GET() {
       title: 'Created a new recipe',
       description: r.title,
       at: r.createdAt.toISOString(),
-      icon: '📝',
+      icon: 'file-text',
       color: 'bg-green-500',
     })),
     ...recentFavorites.map<ActivityEvent>((f) => ({
       id: `fav-${f.id}`,
       type: 'recipe_saved',
       title: 'Saved a recipe',
+      recipeTitle: f.recipe.title,
+      authorName: f.recipe.author
+        ? `${f.recipe.author.firstName} ${f.recipe.author.lastName}`
+        : undefined,
       description: `${f.recipe.title}${
         f.recipe.author ? ` by ${f.recipe.author.firstName} ${f.recipe.author.lastName}` : ''
       }`,
       at: f.createdAt.toISOString(),
-      icon: '❤️',
-      color: 'bg-pink-500',
+      icon: 'heart',
+      color: 'bg-teal-600',
     })),
     ...recentCooks.map<ActivityEvent>((c) => ({
       id: `cook-${c.id}`,
@@ -108,13 +116,14 @@ export async function GET() {
       title: 'Cooked a recipe',
       description: c.recipe.title,
       at: c.cookedAt.toISOString(),
-      icon: '🍳',
-      color: 'bg-orange-500',
+      icon: 'chef-hat',
+      color: 'bg-teal-600',
     })),
     ...recentAchievements.map<ActivityEvent>((ua) => ({
       id: `ach-${ua.id}`,
       type: 'achievement',
       title: 'Unlocked achievement',
+      achievementKey: ua.achievement.key,
       description: `${ua.achievement.title} - ${ua.achievement.description}`,
       at: ua.unlockedAt.toISOString(),
       icon: ua.achievement.icon,

@@ -4,9 +4,12 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { Logo } from '@/components/ui';
+import { useTranslations } from 'next-intl';
 
 export default function Register() {
   const router = useRouter();
+  const t = useTranslations('auth.register');
   
   const [formData, setFormData] = useState({
     firstName: '',
@@ -20,6 +23,8 @@ export default function Register() {
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  // Set when the account exists but auto sign-in failed, so the banner reads as success
+  const [accountCreated, setAccountCreated] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({
     firstName: '',
     lastName: '',
@@ -60,47 +65,47 @@ export default function Register() {
 
     // First name validation
     if (!formData.firstName.trim()) {
-      errors.firstName = 'First name is required';
+      errors.firstName = t('firstNameRequired');
       isValid = false;
     } else if (formData.firstName.trim().length < 1) {
-      errors.firstName = 'First name cannot be empty';
+      errors.firstName = t('firstNameRequired');
       isValid = false;
     }
 
     // Last name validation
     if (!formData.lastName.trim()) {
-      errors.lastName = 'Last name is required';
+      errors.lastName = t('lastNameRequired');
       isValid = false;
     } else if (formData.lastName.trim().length < 1) {
-      errors.lastName = 'Last name cannot be empty';
+      errors.lastName = t('lastNameRequired');
       isValid = false;
     }
 
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!formData.email) {
-      errors.email = 'Email is required';
+      errors.email = t('emailRequired');
       isValid = false;
     } else if (!emailRegex.test(formData.email)) {
-      errors.email = 'Please enter a valid email address';
+      errors.email = t('invalidEmail');
       isValid = false;
     }
 
     // Password validation
     if (!formData.password) {
-      errors.password = 'Password is required';
+      errors.password = t('passwordRequired');
       isValid = false;
     } else if (formData.password.length < 8) {
-      errors.password = 'Password must be at least 8 characters';
+      errors.password = t('passwordMinLength');
       isValid = false;
     }
 
     // Confirm password validation
     if (!formData.confirmPassword) {
-      errors.confirmPassword = 'Please confirm your password';
+      errors.confirmPassword = t('confirmRequired');
       isValid = false;
     } else if (formData.password !== formData.confirmPassword) {
-      errors.confirmPassword = 'Passwords do not match';
+      errors.confirmPassword = t('passwordsMismatch');
       isValid = false;
     }
 
@@ -114,7 +119,7 @@ export default function Register() {
     
     // Validate terms acceptance
     if (!acceptTerms) {
-      setError('Please accept the terms and conditions');
+      setError(t('acceptTermsError'));
       return;
     }
     
@@ -143,7 +148,7 @@ export default function Register() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Registration failed');
+        throw new Error(data.error || t('registrationFailed'));
       }
 
       // Registration successful, now sign in automatically
@@ -155,7 +160,8 @@ export default function Register() {
 
       if (signInResult?.error) {
         // Registration succeeded but auto sign-in failed
-        setError('Account created! Please sign in manually.');
+        setAccountCreated(true);
+        setError(t('accountCreatedSignIn'));
         setTimeout(() => {
           router.push('/sign-in');
         }, 2000);
@@ -164,42 +170,42 @@ export default function Register() {
         router.push('/account');
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+      setError(err instanceof Error ? err.message : t('genericError'));
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-pink-50 via-rose-50 to-red-50 px-4 py-12 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 sm:px-6 lg:px-8">
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-12 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 sm:px-6 lg:px-8">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center">
           <Link href="/" className="inline-flex items-center gap-2">
-            <span className="text-4xl">🍽️</span>
-            <h1 className="bg-gradient-to-r from-pink-500 via-rose-500 to-red-500 bg-clip-text text-3xl font-bold text-transparent">
+            <Logo className="h-9 w-9 text-teal-600 dark:text-teal-400" />
+            <h1 className="text-3xl font-bold text-teal-600 dark:text-teal-400">
               globalBites
             </h1>
           </Link>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900 dark:text-white">
-            Create Your Account
+          <h2 className="mt-6 text-3xl font-bold text-slate-900 dark:text-white">
+            {t('createYourAccount')}
           </h2>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            Join our community of food lovers from around the world
+          <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+            {t('joinCommunity')}
           </p>
         </div>
 
         {/* Register Form */}
-        <div className="mt-8 rounded-2xl bg-white p-8 shadow-xl dark:bg-gray-800">
+        <div className="mt-8 rounded-lg bg-white p-8 shadow-md dark:bg-slate-900">
           {/* Error Message */}
           {error && (
             <div className={`mb-6 rounded-lg p-4 ${
-              error.includes('created') 
+              accountCreated 
                 ? 'bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-300' 
                 : 'bg-red-50 text-red-800 dark:bg-red-900/20 dark:text-red-300'
             }`}>
               <div className="flex items-center gap-2">
-                {error.includes('created') ? (
+                {accountCreated ? (
                   <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                   </svg>
@@ -218,8 +224,8 @@ export default function Register() {
             <div className="grid gap-4 sm:grid-cols-2">
               {/* First Name Field */}
               <div>
-                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  First Name
+                <label htmlFor="firstName" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                  {t('firstName')}
                 </label>
                 <div className="mt-1">
                   <input
@@ -231,12 +237,12 @@ export default function Register() {
                     value={formData.firstName}
                     onChange={handleChange}
                     disabled={isLoading}
-                    className={`block w-full rounded-lg border px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50 dark:text-white dark:placeholder-gray-500 ${
+                    className={`block w-full rounded-lg border px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50 dark:text-white dark:placeholder-slate-500 ${
                       fieldErrors.firstName 
                         ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20 dark:border-red-500' 
-                        : 'border-gray-300 focus:border-pink-500 focus:ring-pink-500/20 dark:border-gray-600 dark:bg-gray-700'
+                        : 'border-slate-300 focus:border-teal-600 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800'
                     }`}
-                    placeholder="John"
+                    placeholder={t('firstNamePlaceholder')}
                   />
                   {fieldErrors.firstName && (
                     <p className="mt-1 text-xs text-red-600 dark:text-red-400">{fieldErrors.firstName}</p>
@@ -246,8 +252,8 @@ export default function Register() {
 
               {/* Last Name Field */}
               <div>
-                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Last Name
+                <label htmlFor="lastName" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                  {t('lastName')}
                 </label>
                 <div className="mt-1">
                   <input
@@ -259,12 +265,12 @@ export default function Register() {
                     value={formData.lastName}
                     onChange={handleChange}
                     disabled={isLoading}
-                    className={`block w-full rounded-lg border px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50 dark:text-white dark:placeholder-gray-500 ${
+                    className={`block w-full rounded-lg border px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50 dark:text-white dark:placeholder-slate-500 ${
                       fieldErrors.lastName 
                         ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20 dark:border-red-500' 
-                        : 'border-gray-300 focus:border-pink-500 focus:ring-pink-500/20 dark:border-gray-600 dark:bg-gray-700'
+                        : 'border-slate-300 focus:border-teal-600 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800'
                     }`}
-                    placeholder="Doe"
+                    placeholder={t('lastNamePlaceholder')}
                   />
                   {fieldErrors.lastName && (
                     <p className="mt-1 text-xs text-red-600 dark:text-red-400">{fieldErrors.lastName}</p>
@@ -275,8 +281,8 @@ export default function Register() {
 
             {/* Email Field */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Email Address
+              <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                {t('email')}
               </label>
               <div className="mt-1">
                 <input
@@ -288,12 +294,12 @@ export default function Register() {
                   value={formData.email}
                   onChange={handleChange}
                   disabled={isLoading}
-                  className={`block w-full rounded-lg border px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50 dark:text-white dark:placeholder-gray-500 ${
+                  className={`block w-full rounded-lg border px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50 dark:text-white dark:placeholder-slate-500 ${
                     fieldErrors.email 
                       ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20 dark:border-red-500' 
-                      : 'border-gray-300 focus:border-pink-500 focus:ring-pink-500/20 dark:border-gray-600 dark:bg-gray-700'
+                      : 'border-slate-300 focus:border-teal-600 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800'
                   }`}
-                  placeholder="you@example.com"
+                  placeholder={t('emailPlaceholder')}
                 />
                 {fieldErrors.email && (
                   <p className="mt-1 text-xs text-red-600 dark:text-red-400">{fieldErrors.email}</p>
@@ -303,8 +309,8 @@ export default function Register() {
 
             {/* Password Field */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Password
+              <label htmlFor="password" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                {t('password')}
               </label>
               <div className="relative mt-1">
                 <input
@@ -316,10 +322,10 @@ export default function Register() {
                   value={formData.password}
                   onChange={handleChange}
                   disabled={isLoading}
-                  className={`block w-full rounded-lg border px-4 py-3 pr-12 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50 dark:text-white dark:placeholder-gray-500 ${
+                  className={`block w-full rounded-lg border px-4 py-3 pr-12 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50 dark:text-white dark:placeholder-slate-500 ${
                     fieldErrors.password 
                       ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20 dark:border-red-500' 
-                      : 'border-gray-300 focus:border-pink-500 focus:ring-pink-500/20 dark:border-gray-600 dark:bg-gray-700'
+                      : 'border-slate-300 focus:border-teal-600 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800'
                   }`}
                   placeholder="••••••••"
                 />
@@ -327,7 +333,7 @@ export default function Register() {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   disabled={isLoading}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-50 dark:hover:text-gray-300"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 disabled:cursor-not-allowed disabled:opacity-50 dark:hover:text-slate-300"
                 >
                   {showPassword ? (
                     <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -344,16 +350,16 @@ export default function Register() {
               {fieldErrors.password ? (
                 <p className="mt-1 text-xs text-red-600 dark:text-red-400">{fieldErrors.password}</p>
               ) : (
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  Must be at least 8 characters long
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                  {t('passwordHint')}
                 </p>
               )}
             </div>
 
             {/* Confirm Password Field */}
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Confirm Password
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                {t('confirmPassword')}
               </label>
               <div className="relative mt-1">
                 <input
@@ -365,10 +371,10 @@ export default function Register() {
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   disabled={isLoading}
-                  className={`block w-full rounded-lg border px-4 py-3 pr-12 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50 dark:text-white dark:placeholder-gray-500 ${
+                  className={`block w-full rounded-lg border px-4 py-3 pr-12 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50 dark:text-white dark:placeholder-slate-500 ${
                     fieldErrors.confirmPassword 
                       ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20 dark:border-red-500' 
-                      : 'border-gray-300 focus:border-pink-500 focus:ring-pink-500/20 dark:border-gray-600 dark:bg-gray-700'
+                      : 'border-slate-300 focus:border-teal-600 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800'
                   }`}
                   placeholder="••••••••"
                 />
@@ -376,7 +382,7 @@ export default function Register() {
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   disabled={isLoading}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-50 dark:hover:text-gray-300"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 disabled:cursor-not-allowed disabled:opacity-50 dark:hover:text-slate-300"
                 >
                   {showConfirmPassword ? (
                     <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -404,16 +410,16 @@ export default function Register() {
                 checked={acceptTerms}
                 onChange={(e) => setAcceptTerms(e.target.checked)}
                 disabled={isLoading}
-                className="mt-1 h-4 w-4 rounded border-gray-300 text-pink-600 focus:ring-2 focus:ring-pink-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+                className="mt-1 h-4 w-4 rounded border-slate-300 text-teal-600 focus:ring-2 focus:ring-teal-500/20 disabled:cursor-not-allowed disabled:opacity-50"
               />
-              <label htmlFor="accept-terms" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-                I agree to the{' '}
-                <Link href="/terms" className="font-medium text-pink-600 hover:text-pink-500 dark:text-pink-400">
-                  Terms and Conditions
+              <label htmlFor="accept-terms" className="ml-2 block text-sm text-slate-700 dark:text-slate-300">
+                {t('agreeToTerms')}{' '}
+                <Link href="/terms" className="font-medium text-teal-600 hover:text-teal-600 dark:text-teal-400">
+                  {t('termsAndConditions')}
                 </Link>{' '}
-                and{' '}
-                <Link href="/privacy" className="font-medium text-pink-600 hover:text-pink-500 dark:text-pink-400">
-                  Privacy Policy
+                {t('and')}{' '}
+                <Link href="/privacy" className="font-medium text-teal-600 hover:text-teal-600 dark:text-teal-400">
+                  {t('privacyPolicy')}
                 </Link>
               </label>
             </div>
@@ -422,7 +428,7 @@ export default function Register() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full rounded-lg bg-gradient-to-r from-pink-500 via-rose-500 to-red-500 px-4 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:from-pink-600 hover:via-rose-600 hover:to-red-600 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-pink-500/50 disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full rounded-lg bg-teal-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500/50 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -430,10 +436,10 @@ export default function Register() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Creating Account...
+                  {t('creatingAccount')}
                 </span>
               ) : (
-                'Create Account'
+                t('registerButton')
               )}
             </button>
           </form>
@@ -441,18 +447,18 @@ export default function Register() {
           {/* Divider */}
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
+              <div className="w-full border-t border-slate-300 dark:border-slate-700"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="bg-white px-4 text-gray-500 dark:bg-gray-800 dark:text-gray-400">
-                Or sign up with
+              <span className="bg-white px-4 text-slate-500 dark:bg-slate-900 dark:text-slate-400">
+                {t('orSignUpWith')}
               </span>
             </div>
           </div>
 
           {/* Social Sign Up Buttons */}
           <div className="grid grid-cols-2 gap-4">
-            <button className="flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">
+            <button className="flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
               <svg className="h-5 w-5" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -462,7 +468,7 @@ export default function Register() {
               Google
             </button>
 
-            <button className="flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">
+            <button className="flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
               <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
               </svg>
@@ -471,10 +477,10 @@ export default function Register() {
           </div>
 
           {/* Sign In Link */}
-          <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-            Already have an account?{' '}
-            <Link href="/sign-in" className="font-medium text-pink-600 hover:text-pink-500 dark:text-pink-400">
-              Sign in
+          <p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400">
+            {t('haveAccount')}{' '}
+            <Link href="/sign-in" className="font-medium text-teal-600 hover:text-teal-600 dark:text-teal-400">
+              {t('signInLink')}
             </Link>
           </p>
         </div>

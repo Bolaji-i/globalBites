@@ -1,41 +1,79 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useTranslation } from '@/hooks/useTranslation';
+import { useTranslations } from 'next-intl';
+import { Button, Logo } from '@/components/ui';
+import type { LanguageCode } from '@/contexts/LanguageContext';
 
 export default function Header() {
   const { data: session, status } = useSession();
   const { currentLanguage, setLanguage, languages } = useLanguage();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const t = useTranslation();
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  const t = useTranslations('header');
+  const tc = useTranslations('common');
+
+  // The old dropdown could only be dismissed by clicking the trigger again,
+  // which left it stranded open on any other interaction.
+  useEffect(() => {
+    if (!showUserMenu) return;
+
+    const onPointerDown = (event: MouseEvent) => {
+      if (!userMenuRef.current?.contains(event.target as Node)) {
+        setShowUserMenu(false);
+      }
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setShowUserMenu(false);
+    };
+
+    document.addEventListener('mousedown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [showUserMenu]);
 
   const handleSignOut = async () => {
     await signOut({ callbackUrl: '/' });
   };
 
+  const navLink =
+    'font-sans text-sm text-paper-600 transition-colors hover:text-accent-600 ' +
+    'dark:text-paper-400 dark:hover:text-accent-400';
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/80 backdrop-blur-lg dark:border-gray-800 dark:bg-gray-900/80">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-        {/* Logo/Brand */}
-        <Link href="/" className="flex items-center gap-2">
-          <span className="text-3xl">🍽️</span>
-          <h1 className="bg-gradient-to-r from-pink-500 via-rose-500 to-red-500 bg-clip-text text-2xl font-bold tracking-tight text-transparent sm:text-3xl">
+    <header className="sticky top-0 z-50 w-full border-b border-paper-200 bg-paper-50/90 backdrop-blur-md dark:border-paper-800 dark:bg-paper-950/90">
+      <div className="mx-auto flex h-20 max-w-6xl items-center justify-between px-6 lg:px-8">
+        {/* Wordmark — display serif, lowercase, the one piece of brand voice */}
+        <Link href="/" className="group flex items-center gap-2.5">
+          <Logo className="h-7 w-7 text-accent-600 dark:text-accent-400" />
+          <span className="font-display text-2xl font-semibold tracking-tight text-paper-900 transition-colors group-hover:text-accent-600 dark:text-paper-50 dark:group-hover:text-accent-400">
             globalBites
-          </h1>
+          </span>
         </Link>
 
-        {/* Navigation - Desktop */}
-        <nav className="hidden items-center gap-6 md:flex">
-          {/* Language Selector */}
+        {/* Desktop navigation */}
+        <nav className="hidden items-center gap-8 md:flex">
+          <Link href="/recipes" className={navLink}>
+            {t('recipes')}
+          </Link>
+          <Link href="/about" className={navLink}>
+            {t('aboutUs')}
+          </Link>
+
+          {/* Language selector — reduced to a bare select so it reads as text */}
           <div className="relative">
             <select
               value={currentLanguage}
-              onChange={(e) => setLanguage(e.target.value as any)}
-              className="cursor-pointer appearance-none rounded-lg border border-gray-300 bg-white px-4 py-2 pr-10 text-sm font-medium text-gray-700 transition-colors hover:border-gray-400 focus:border-pink-500 focus:outline-none focus:ring-2 focus:ring-pink-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600"
+              onChange={(e) => setLanguage(e.target.value as LanguageCode)}
+              aria-label={t('selectLanguage')}
+              className="cursor-pointer appearance-none rounded-sm bg-transparent py-1 pr-6 font-sans text-sm text-paper-600 transition-colors hover:text-accent-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-600/40 dark:text-paper-400 dark:hover:text-accent-400"
             >
               {languages.map((lang) => (
                 <option key={lang.code} value={lang.code}>
@@ -44,120 +82,121 @@ export default function Header() {
               ))}
             </select>
             <svg
-              className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
+              className="pointer-events-none absolute right-0 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-paper-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
             </svg>
           </div>
 
-          {/* About Link */}
-          <Link
-            href="/about"
-            className="text-sm font-medium text-gray-700 transition-colors hover:text-pink-600 dark:text-gray-300 dark:hover:text-pink-400"
-          >
-            {t.header.aboutUs}
-          </Link>
+          <span className="h-4 w-px bg-paper-200 dark:bg-paper-800" aria-hidden="true" />
 
-          {/* Show user menu if logged in, otherwise show Sign In/Register */}
           {status === 'loading' ? (
-            <div className="h-10 w-10 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700"></div>
+            <div className="h-9 w-9 animate-pulse rounded-full bg-paper-200 dark:bg-paper-800" />
           ) : session ? (
-            /* User Menu */
-            <div className="relative">
+            <div className="relative" ref={userMenuRef}>
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition-all hover:border-pink-500 hover:bg-pink-50 dark:border-gray-700 dark:text-gray-300 dark:hover:border-pink-500 dark:hover:bg-pink-950"
+                aria-haspopup="menu"
+                aria-expanded={showUserMenu}
+                className="flex items-center gap-2 rounded-sm py-1 font-sans text-sm text-paper-700 transition-colors hover:text-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-600/40 dark:text-paper-300 dark:hover:text-accent-400"
               >
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r from-pink-500 to-rose-500 text-white font-semibold">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent-600 font-display text-sm font-semibold text-paper-50">
                   {session.user?.name?.charAt(0).toUpperCase() || 'U'}
-                </div>
-                <span className="hidden lg:inline">{session.user?.name || 'User'}</span>
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
+                </span>
+                <span className="hidden lg:inline">{session.user?.name || tc('user')}</span>
               </button>
 
-              {/* Dropdown Menu */}
               {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-56 rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
-                  <div className="border-b border-gray-200 p-3 dark:border-gray-700">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">{session.user?.name}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{session.user?.email}</p>
+                <div
+                  role="menu"
+                  className="absolute right-0 mt-3 w-60 rounded-sm border border-paper-200 bg-paper-50 dark:border-paper-800 dark:bg-paper-950"
+                >
+                  <div className="border-b border-paper-200 px-4 py-3 dark:border-paper-800">
+                    <p className="font-display text-sm font-semibold text-paper-900 dark:text-paper-50">
+                      {session.user?.name}
+                    </p>
+                    <p className="mt-0.5 font-sans text-xs text-paper-500 dark:text-paper-400">
+                      {session.user?.email}
+                    </p>
                   </div>
-                  <div className="py-1">
+                  <div className="p-1">
                     <Link
                       href="/account"
+                      role="menuitem"
                       onClick={() => setShowUserMenu(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                      className="block rounded-sm px-3 py-2 font-sans text-sm text-paper-700 transition-colors hover:bg-paper-100 hover:text-accent-600 dark:text-paper-300 dark:hover:bg-paper-900 dark:hover:text-accent-400"
                     >
-                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                      {t.common.myAccount}
+                      {tc('myAccount')}
                     </Link>
                     <button
                       onClick={handleSignOut}
-                      className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950"
+                      role="menuitem"
+                      className="block w-full rounded-sm px-3 py-2 text-left font-sans text-sm text-accent-700 transition-colors hover:bg-accent-50 dark:text-accent-300 dark:hover:bg-accent-950"
                     >
-                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                      </svg>
-                      {t.common.signOut}
+                      {tc('signOut')}
                     </button>
                   </div>
                 </div>
               )}
             </div>
           ) : (
-            /* Sign In/Register Buttons (when not logged in) */
-            <>
-              <Link
-                href="/sign-in"
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-all hover:border-pink-500 hover:bg-pink-50 hover:text-pink-600 dark:border-gray-700 dark:text-gray-300 dark:hover:border-pink-500 dark:hover:bg-pink-950 dark:hover:text-pink-400"
-              >
-                {t.header.signInButton}
+            <div className="flex items-center gap-4">
+              <Link href="/sign-in" className={navLink}>
+                {t('signInButton')}
               </Link>
-
-              <Link
-                href="/register"
-                className="rounded-lg bg-gradient-to-r from-pink-500 to-rose-500 px-5 py-2 text-sm font-semibold text-white shadow-md transition-all hover:from-pink-600 hover:to-rose-600 hover:shadow-lg"
-              >
-                {t.header.registerButton}
-              </Link>
-            </>
+              <Button href="/register" size="sm">
+                {t('registerButton')}
+              </Button>
+            </div>
           )}
         </nav>
 
-        {/* Mobile Menu Button */}
+        {/* Mobile toggle */}
         <button
           onClick={() => setShowMobileMenu(!showMobileMenu)}
-          aria-label="Toggle menu"
+          aria-label={t('toggleMenu')}
           aria-expanded={showMobileMenu}
-          className="md:hidden rounded-lg p-2 text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+          className="rounded-sm p-2 text-paper-700 transition-colors hover:text-accent-600 md:hidden dark:text-paper-300 dark:hover:text-accent-400"
         >
-          <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             {showMobileMenu ? (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
             ) : (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 7h16M4 12h16M4 17h16" />
             )}
           </svg>
         </button>
       </div>
 
-      {/* Mobile Menu Panel */}
+      {/* Mobile panel */}
       {showMobileMenu && (
-        <div className="md:hidden border-t border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
-          <div className="container mx-auto space-y-3 px-4 py-4 sm:px-6">
-            {/* Language Selector */}
-            <div className="relative">
+        <div className="border-t border-paper-200 bg-paper-50 md:hidden dark:border-paper-800 dark:bg-paper-950">
+          <div className="mx-auto max-w-6xl space-y-1 px-6 py-5">
+            <Link
+              href="/recipes"
+              onClick={() => setShowMobileMenu(false)}
+              className="block py-2 font-display text-lg text-paper-900 dark:text-paper-50"
+            >
+              {t('recipes')}
+            </Link>
+            <Link
+              href="/about"
+              onClick={() => setShowMobileMenu(false)}
+              className="block py-2 font-display text-lg text-paper-900 dark:text-paper-50"
+            >
+              {t('aboutUs')}
+            </Link>
+
+            <div className="border-t border-paper-200 pt-4 dark:border-paper-800">
               <select
                 value={currentLanguage}
-                onChange={(e) => setLanguage(e.target.value as any)}
-                className="w-full cursor-pointer appearance-none rounded-lg border border-gray-300 bg-white px-4 py-2 pr-10 text-sm font-medium text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                onChange={(e) => setLanguage(e.target.value as LanguageCode)}
+                aria-label={t('selectLanguage')}
+                className="w-full cursor-pointer rounded-sm border border-paper-300 bg-transparent px-3 py-2 font-sans text-sm text-paper-700 dark:border-paper-700 dark:text-paper-300"
               >
                 {languages.map((lang) => (
                   <option key={lang.code} value={lang.code}>
@@ -165,64 +204,42 @@ export default function Header() {
                   </option>
                 ))}
               </select>
-              <svg
-                className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
             </div>
 
-            <Link
-              href="/about"
-              onClick={() => setShowMobileMenu(false)}
-              className="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
-            >
-              {t.header.aboutUs}
-            </Link>
-
             {status === 'loading' ? null : session ? (
-              <>
-                <div className="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">{session.user?.name}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{session.user?.email}</p>
-                </div>
+              <div className="space-y-1 border-t border-paper-200 pt-4 dark:border-paper-800">
+                <p className="font-display text-sm font-semibold text-paper-900 dark:text-paper-50">
+                  {session.user?.name}
+                </p>
+                <p className="pb-2 font-sans text-xs text-paper-500 dark:text-paper-400">
+                  {session.user?.email}
+                </p>
                 <Link
                   href="/account"
                   onClick={() => setShowMobileMenu(false)}
-                  className="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+                  className="block py-2 font-sans text-sm text-paper-700 dark:text-paper-300"
                 >
-                  {t.common.myAccount}
+                  {tc('myAccount')}
                 </Link>
                 <button
                   onClick={() => {
                     setShowMobileMenu(false);
                     handleSignOut();
                   }}
-                  className="block w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950"
+                  className="block w-full py-2 text-left font-sans text-sm text-accent-700 dark:text-accent-300"
                 >
-                  {t.common.signOut}
+                  {tc('signOut')}
                 </button>
-              </>
+              </div>
             ) : (
-              <>
-                <Link
-                  href="/sign-in"
-                  onClick={() => setShowMobileMenu(false)}
-                  className="block rounded-lg border border-gray-300 px-4 py-2 text-center text-sm font-medium text-gray-700 dark:border-gray-700 dark:text-gray-300"
-                >
-                  {t.header.signInButton}
-                </Link>
-                <Link
-                  href="/register"
-                  onClick={() => setShowMobileMenu(false)}
-                  className="block rounded-lg bg-gradient-to-r from-pink-500 to-rose-500 px-5 py-2 text-center text-sm font-semibold text-white shadow-md"
-                >
-                  {t.header.registerButton}
-                </Link>
-              </>
+              <div className="flex flex-col gap-3 border-t border-paper-200 pt-4 dark:border-paper-800">
+                <Button href="/sign-in" variant="secondary" onClick={() => setShowMobileMenu(false)}>
+                  {t('signInButton')}
+                </Button>
+                <Button href="/register" onClick={() => setShowMobileMenu(false)}>
+                  {t('registerButton')}
+                </Button>
+              </div>
             )}
           </div>
         </div>

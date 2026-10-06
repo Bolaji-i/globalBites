@@ -3,6 +3,9 @@
 import { useState, useEffect, use, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { UserRound, MapPin, LinkIcon, CalendarDays, Lock, UtensilsCrossed, Heart, Clock } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { useLocaleFormat, useRecipeLabels } from '@/hooks/useLocaleFormat';
 
 interface UserProfile {
   id: string;
@@ -41,6 +44,10 @@ interface UserProfilePageProps {
 export default function UserProfilePage({ params }: UserProfilePageProps) {
   const resolvedParams = use(params);
   const identifier = resolvedParams.identifier;
+  const t = useTranslations('profile');
+  const tc = useTranslations('common');
+  const labels = useRecipeLabels();
+  const format = useLocaleFormat();
 
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -55,20 +62,20 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
       const response = await fetch(`/api/users/${identifier}`);
       if (!response.ok) {
         if (response.status === 404) {
-          setError('User not found');
+          setError(t('notFound'));
         } else {
-          setError('Failed to load profile');
+          setError(t('loadFailed'));
         }
         return;
       }
       const data = await response.json();
       setProfile(data);
     } catch {
-      setError('Failed to load profile');
+      setError(t('loadFailed'));
     } finally {
       setLoading(false);
     }
-  }, [identifier]);
+  }, [identifier, t]);
 
   const fetchRecipes = useCallback(async () => {
     setRecipesLoading(true);
@@ -98,22 +105,22 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-600"></div>
       </div>
     );
   }
 
   if (error || !profile) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
         <div className="text-center">
-          <div className="text-6xl mb-4">👤</div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-            {error || 'User not found'}
+          <UserRound className="h-16 w-16 text-slate-300 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+            {error || t('notFound')}
           </h2>
-          <Link href="/" className="text-orange-500 hover:text-orange-600">
-            Go back home
+          <Link href="/" className="text-teal-600 hover:text-teal-600">
+            {t('goHome')}
           </Link>
         </div>
       </div>
@@ -121,9 +128,9 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       {/* Profile Header */}
-      <div className="bg-gradient-to-r from-orange-500 to-red-500 py-12">
+      <div className="bg-teal-700 py-12">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center gap-6">
             {/* Avatar */}
@@ -134,10 +141,10 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
                   alt={profile.firstName}
                   width={128}
                   height={128}
-                  className="rounded-full border-4 border-white shadow-lg"
+                  className="rounded-full border-4 border-white shadow-sm"
                 />
               ) : (
-                <div className="w-32 h-32 rounded-full bg-white flex items-center justify-center text-5xl border-4 border-white shadow-lg">
+                <div className="w-32 h-32 rounded-full bg-white flex items-center justify-center text-5xl border-4 border-white shadow-sm">
                   {profile.firstName.charAt(0)}
                 </div>
               )}
@@ -157,7 +164,7 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
               <div className="flex flex-wrap gap-4 mt-4 justify-center md:justify-start">
                 {profile.location && (
                   <span className="flex items-center gap-1 text-white/80">
-                    📍 {profile.location}
+                    <MapPin className="h-4 w-4" /> {profile.location}
                   </span>
                 )}
                 {profile.website && (
@@ -167,11 +174,11 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
                     rel="noopener noreferrer"
                     className="flex items-center gap-1 text-white/80 hover:text-white"
                   >
-                    🔗 Website
+                    <LinkIcon className="h-4 w-4" /> {t('website')}
                   </a>
                 )}
                 <span className="flex items-center gap-1 text-white/80">
-                  📅 Joined {new Date(profile.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                  <CalendarDays className="h-4 w-4" /> {t('joined', { date: format.date(profile.createdAt, { month: 'long', year: 'numeric' }) })}
                 </span>
               </div>
             </div>
@@ -180,11 +187,11 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
             <div className="md:ml-auto flex gap-8 text-center">
               <div>
                 <div className="text-3xl font-bold text-white">{profile.recipeCount}</div>
-                <div className="text-white/80">Recipes</div>
+                <div className="text-white/80">{t('recipes')}</div>
               </div>
               <div>
                 <div className="text-3xl font-bold text-white">{profile.favoriteCount}</div>
-                <div className="text-white/80">Favorites</div>
+                <div className="text-white/80">{t('favorites')}</div>
               </div>
             </div>
           </div>
@@ -195,40 +202,40 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
       <div className="container mx-auto px-4 py-8">
         {profile.isPrivate ? (
           <div className="text-center py-16">
-            <div className="text-6xl mb-4">🔒</div>
-            <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
-              This profile is private
+            <Lock className="h-16 w-16 text-slate-300 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-300 mb-2">
+              {t('private')}
             </h3>
-            <p className="text-gray-500 dark:text-gray-400">
-              Only the owner can see their recipes and activity
+            <p className="text-slate-500 dark:text-slate-400">
+              {t('privateDesc')}
             </p>
           </div>
         ) : (
           <>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-              Recipes by {profile.firstName}
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">
+              {t('recipesBy', { name: profile.firstName })}
             </h2>
 
             {recipesLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {[...Array(4)].map((_, i) => (
-                  <div key={i} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden animate-pulse">
-                    <div className="h-48 bg-gray-200 dark:bg-gray-700" />
+                  <div key={i} className="bg-white dark:bg-slate-900 rounded-xl shadow-sm overflow-hidden animate-pulse">
+                    <div className="h-48 bg-slate-200 dark:bg-slate-800" />
                     <div className="p-4">
-                      <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded mb-2" />
-                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4" />
+                      <div className="h-6 bg-slate-200 dark:bg-slate-800 rounded mb-2" />
+                      <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-3/4" />
                     </div>
                   </div>
                 ))}
               </div>
             ) : recipes.length === 0 ? (
               <div className="text-center py-16">
-                <div className="text-6xl mb-4">🍽️</div>
-                <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  No recipes yet
+                <UtensilsCrossed className="h-16 w-16 text-slate-300 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                  {t('noRecipes')}
                 </h3>
-                <p className="text-gray-500 dark:text-gray-400">
-                  {profile.firstName} hasn&apos;t shared any recipes yet
+                <p className="text-slate-500 dark:text-slate-400">
+                  {t('noRecipesDesc', { name: profile.firstName })}
                 </p>
               </div>
             ) : (
@@ -237,9 +244,9 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
                   <Link
                     key={recipe.id}
                     href={`/recipes/${recipe.id}`}
-                    className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow group"
+                    className="bg-white dark:bg-slate-900 rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow group"
                   >
-                    <div className="relative h-48 bg-gray-100 dark:bg-gray-700">
+                    <div className="relative h-48 bg-slate-100 dark:bg-slate-800">
                       {recipe.image ? (
                         <Image
                           src={recipe.image}
@@ -248,33 +255,33 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
                           className="object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                       ) : (
-                        <div className="flex items-center justify-center h-full text-6xl">
-                          🍽️
+                        <div className="flex items-center justify-center h-full">
+                          <UtensilsCrossed className="h-12 w-12 text-slate-300" />
                         </div>
                       )}
                       {recipe.cuisine && (
-                        <span className="absolute top-3 left-3 bg-white/90 dark:bg-gray-800/90 px-2 py-1 rounded-full text-xs font-medium">
-                          {recipe.cuisine}
+                        <span className="absolute top-3 left-3 bg-white/90 dark:bg-slate-900/90 px-2 py-1 rounded-full text-xs font-medium">
+                          {labels.cuisine(recipe.cuisine)}
                         </span>
                       )}
                       {recipe._count.favorites > 0 && (
                         <span className="absolute top-3 right-3 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1">
-                          ❤️ {recipe._count.favorites}
+                          <Heart className="h-3.5 w-3.5 fill-current" /> {recipe._count.favorites}
                         </span>
                       )}
                     </div>
                     <div className="p-4">
-                      <h3 className="font-semibold text-gray-900 dark:text-white mb-1 line-clamp-1">
+                      <h3 className="font-semibold text-slate-900 dark:text-white mb-1 line-clamp-1">
                         {recipe.title}
                       </h3>
                       {recipe.description && (
-                        <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-3">
+                        <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2 mb-3">
                           {recipe.description}
                         </p>
                       )}
-                      <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                      <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
                         {recipe.prepTime && (
-                          <span>⏱️ {recipe.prepTime + (recipe.cookTime || 0)} min</span>
+                          <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {tc('minutes', { count: recipe.prepTime + (recipe.cookTime || 0) })}</span>
                         )}
                         {recipe.difficulty && (
                           <span className={`px-2 py-0.5 rounded-full ${
@@ -282,7 +289,7 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
                             recipe.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300' :
                             'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
                           }`}>
-                            {recipe.difficulty}
+                            {labels.difficulty(recipe.difficulty)}
                           </span>
                         )}
                       </div>
@@ -298,19 +305,19 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
                 <button
                   onClick={() => setPage(p => Math.max(1, p - 1))}
                   disabled={page === 1}
-                  className="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700"
+                  className="px-4 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-800"
                 >
-                  Previous
+                  {tc('previous')}
                 </button>
-                <span className="px-4 py-2 text-gray-600 dark:text-gray-400">
-                  Page {page} of {totalPages}
+                <span className="px-4 py-2 text-slate-600 dark:text-slate-400">
+                  {tc('pageOf', { page, total: totalPages })}
                 </span>
                 <button
                   onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
-                  className="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700"
+                  className="px-4 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-800"
                 >
-                  Next
+                  {tc('next')}
                 </button>
               </div>
             )}

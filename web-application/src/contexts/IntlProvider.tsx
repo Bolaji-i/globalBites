@@ -37,6 +37,9 @@ export function IntlProvider({ children, allMessages }: IntlProviderProps) {
     const savedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY) as Locale;
     if (savedLanguage && languages.some(lang => lang.code === savedLanguage)) {
       setCurrentLanguage(savedLanguage);
+      // The server renders `lang="en"` because it cannot know the stored
+      // locale; correct it here so screen readers get the right language.
+      document.documentElement.lang = savedLanguage;
     }
   }, []);
 
@@ -57,7 +60,14 @@ export function IntlProvider({ children, allMessages }: IntlProviderProps) {
 
   return (
     <LanguageContext.Provider value={{ currentLanguage, setLanguage, languages }}>
-      <NextIntlClientProvider locale={currentLanguage} messages={messages}>
+      {/* An explicit timeZone keeps server and client formatting identical;
+          without it next-intl falls back to the ambient zone and warns about
+          hydration mismatches on every render. */}
+      <NextIntlClientProvider
+        locale={currentLanguage}
+        messages={messages}
+        timeZone="UTC"
+      >
         {children}
       </NextIntlClientProvider>
     </LanguageContext.Provider>

@@ -56,8 +56,8 @@ export async function sendPasswordResetEmail(email: string, resetUrl: string) {
               <table role="presentation" style="width: 100%; max-width: 600px; border-collapse: collapse; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
                 <!-- Header -->
                 <tr>
-                  <td style="padding: 40px 40px 20px; text-align: center; background: linear-gradient(135deg, #ec4899 0%, #f43f5e 50%, #ef4444 100%); border-radius: 12px 12px 0 0;">
-                    <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #ffffff;">🍽️ ${APP_NAME}</h1>
+                  <td style="padding: 40px 40px 20px; text-align: center; background: #0d9488; border-radius: 12px 12px 0 0;">
+                    <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #ffffff;">${APP_NAME}</h1>
                   </td>
                 </tr>
                 
@@ -73,7 +73,7 @@ export async function sendPasswordResetEmail(email: string, resetUrl: string) {
                     <table role="presentation" style="width: 100%; border-collapse: collapse;">
                       <tr>
                         <td align="center" style="padding: 20px 0;">
-                          <a href="${resetUrl}" style="display: inline-block; padding: 14px 32px; font-size: 16px; font-weight: 600; color: #ffffff; background: linear-gradient(135deg, #ec4899 0%, #f43f5e 50%, #ef4444 100%); text-decoration: none; border-radius: 8px; box-shadow: 0 4px 14px rgba(236, 72, 153, 0.4);">
+                          <a href="${resetUrl}" style="display: inline-block; padding: 14px 32px; font-size: 16px; font-weight: 600; color: #ffffff; background: #0d9488; text-decoration: none; border-radius: 8px; box-shadow: 0 4px 14px rgba(13, 148, 136, 0.4);">
                             Reset Password
                           </a>
                         </td>
@@ -93,7 +93,7 @@ export async function sendPasswordResetEmail(email: string, resetUrl: string) {
                       <p style="margin: 0 0 10px; font-size: 12px; color: #71717a;">
                         If the button doesn't work, copy and paste this link into your browser:
                       </p>
-                      <p style="margin: 0; font-size: 12px; word-break: break-all; color: #ec4899;">
+                      <p style="margin: 0; font-size: 12px; word-break: break-all; color: #0d9488;">
                         ${resetUrl}
                       </p>
                     </div>

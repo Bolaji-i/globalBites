@@ -2,9 +2,14 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
+import { useTranslations } from 'next-intl';
+import DeleteRecipeDialog from './DeleteRecipeDialog';
+import IngredientChecklist from './IngredientChecklist';
+import { useAchievementLabels, useLocaleFormat, useRecipeLabels } from '@/hooks/useLocaleFormat';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { UtensilsCrossed, Heart, ChefHat, Pencil, Trash2, MapPin, Flame, Users, ListChecks, BookOpen, Clock } from 'lucide-react';
 
 interface Recipe {
   id: string;
@@ -41,12 +46,17 @@ interface RecipeModalProps {
 
 export default function RecipeModal({ recipeId, isOpen, onClose, onRecipeDeleted }: RecipeModalProps) {
   const { data: session } = useSession();
+  const t = useTranslations('recipes.detail');
+  const tc = useTranslations('common');
+  const labels = useRecipeLabels();
+  const achievements = useAchievementLabels();
+  const format = useLocaleFormat();
   const router = useRouter();
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState(true);
   const [isFavorited, setIsFavorited] = useState(false);
   const [favoriteCount, setFavoriteCount] = useState(0);
-  const [deleting, setDeleting] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [logging, setLogging] = useState(false);
   const [logMessage, setLogMessage] = useState<string | null>(null);
 
@@ -151,37 +161,15 @@ export default function RecipeModal({ recipeId, isOpen, onClose, onRecipeDeleted
       const unlocked: string[] = data.newlyUnlocked ?? [];
       setLogMessage(
         unlocked.length > 0
-          ? `Logged! 🎉 Unlocked: ${unlocked.join(', ')}`
-          : 'Logged to your cooking journal!',
+          ? t('loggedUnlocked', { achievements: unlocked.map((key) => achievements.title(key)).join(', ') })
+          : t('logged'),
       );
       setTimeout(() => setLogMessage(null), 4000);
     } catch (error) {
       console.error('Error logging cook:', error);
-      setLogMessage('Failed to log cook');
+      setLogMessage(t('logFailed'));
     } finally {
       setLogging(false);
-    }
-  };
-
-  const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this recipe? This action cannot be undone.')) {
-      return;
-    }
-
-    setDeleting(true);
-    try {
-      const response = await fetch(`/api/recipes/${recipeId}`, { method: 'DELETE' });
-      if (response.ok) {
-        onClose();
-        onRecipeDeleted?.();
-      } else {
-        alert('Failed to delete recipe');
-      }
-    } catch (error) {
-      console.error('Error deleting recipe:', error);
-      alert('Failed to delete recipe');
-    } finally {
-      setDeleting(false);
     }
   };
 
@@ -199,11 +187,11 @@ export default function RecipeModal({ recipeId, isOpen, onClose, onRecipeDeleted
       />
       
       {/* Modal Content */}
-      <div className="relative w-full max-w-4xl max-h-[90vh] mx-4 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+      <div className="relative w-full max-w-4xl max-h-[90vh] mx-4 bg-white dark:bg-slate-950 rounded-lg shadow-2xl overflow-hidden flex flex-col">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-800 w-10 h-10 rounded-full flex items-center justify-center text-gray-700 dark:text-gray-300 transition-colors shadow-lg"
+          className="absolute top-4 right-4 z-10 bg-white/90 dark:bg-slate-900/90 hover:bg-white dark:hover:bg-slate-900 w-10 h-10 rounded-full flex items-center justify-center text-slate-700 dark:text-slate-300 transition-colors shadow-sm"
         >
           ✕
         </button>
@@ -211,23 +199,23 @@ export default function RecipeModal({ recipeId, isOpen, onClose, onRecipeDeleted
         {loading ? (
           <div className="p-8">
             <div className="animate-pulse">
-              <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded-xl mb-6" />
-              <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-4" />
-              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4" />
+              <div className="h-64 bg-slate-200 dark:bg-slate-800 rounded-xl mb-6" />
+              <div className="h-8 bg-slate-200 dark:bg-slate-800 rounded w-1/2 mb-4" />
+              <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-3/4" />
             </div>
           </div>
         ) : !recipe ? (
           <div className="p-8 text-center">
-            <div className="text-6xl mb-4">🍽️</div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Recipe not found</h2>
-            <button onClick={onClose} className="text-orange-500 hover:text-orange-600">
-              Close
+            <UtensilsCrossed className="h-16 w-16 text-slate-300 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{t('notFound')}</h2>
+            <button onClick={onClose} className="text-teal-600 hover:text-teal-600">
+              {tc('close')}
             </button>
           </div>
         ) : (
           <div className="overflow-y-auto flex-1">
             {/* Hero Image */}
-            <div className="relative h-64 md:h-80 bg-gray-200 dark:bg-gray-700 flex-shrink-0">
+            <div className="relative h-64 md:h-80 bg-slate-200 dark:bg-slate-800 flex-shrink-0">
               {recipe.image ? (
                 <Image
                   src={recipe.image}
@@ -237,8 +225,8 @@ export default function RecipeModal({ recipeId, isOpen, onClose, onRecipeDeleted
                   priority
                 />
               ) : (
-                <div className="flex items-center justify-center h-full text-8xl">
-                  🍽️
+                <div className="flex items-center justify-center h-full">
+                  <UtensilsCrossed className="h-24 w-24 text-slate-300" />
                 </div>
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
@@ -247,13 +235,13 @@ export default function RecipeModal({ recipeId, isOpen, onClose, onRecipeDeleted
               <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
                 <div className="flex flex-wrap gap-2">
                   {recipe.cuisine && (
-                    <span className="bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                      {recipe.cuisine}
+                    <span className="bg-teal-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                      {labels.cuisine(recipe.cuisine)}
                     </span>
                   )}
                   {recipe.country && (
                     <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                      📍 {recipe.country}
+                        <MapPin className="h-3.5 w-3.5 inline-block" /> {labels.country(recipe.country)}
                     </span>
                   )}
                   {recipe.difficulty && (
@@ -262,7 +250,7 @@ export default function RecipeModal({ recipeId, isOpen, onClose, onRecipeDeleted
                       recipe.difficulty === 'medium' ? 'bg-yellow-500' :
                       'bg-red-500'
                     }`}>
-                      {recipe.difficulty.charAt(0).toUpperCase() + recipe.difficulty.slice(1)}
+                      {labels.difficulty(recipe.difficulty)}
                     </span>
                   )}
                 </div>
@@ -273,17 +261,17 @@ export default function RecipeModal({ recipeId, isOpen, onClose, onRecipeDeleted
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-colors flex items-center gap-2 ${
                       isFavorited
                         ? 'bg-red-500 text-white hover:bg-red-600'
-                        : 'bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
+                        : 'bg-white/90 dark:bg-slate-900/90 hover:bg-white dark:hover:bg-slate-900 text-slate-700 dark:text-slate-300'
                     }`}
                   >
-                    {isFavorited ? '❤️' : '🤍'} {favoriteCount}
+                    <Heart className={`h-4 w-4 ${isFavorited ? 'fill-current' : ''}`} /> {favoriteCount}
                   </button>
                   <button
                     onClick={logCook}
                     disabled={logging}
-                    className="bg-orange-500 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-orange-600 transition-colors disabled:opacity-50 flex items-center gap-2"
+                    className="bg-teal-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-teal-700 transition-colors disabled:opacity-50 flex items-center gap-2"
                   >
-                    🍳 {logging ? 'Logging...' : 'I cooked this'}
+                    <ChefHat className="h-4 w-4" /> {logging ? t('logging') : t('cookedThis')}
                   </button>
                 </div>
               </div>
@@ -291,47 +279,43 @@ export default function RecipeModal({ recipeId, isOpen, onClose, onRecipeDeleted
 
             <div className="p-6">
               {logMessage && (
-                <div className="mb-4 rounded-lg bg-orange-50 dark:bg-orange-900/30 border border-orange-200 dark:border-orange-800 px-4 py-3 text-sm text-orange-800 dark:text-orange-200">
+                <div className="mb-4 rounded-lg bg-teal-50 dark:bg-teal-900/30 border border-teal-200 dark:border-teal-800 px-4 py-3 text-sm text-teal-800 dark:text-teal-200">
                   {logMessage}
                 </div>
               )}
               {/* Title & Description */}
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">
+              <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-3">
                 {recipe.title}
               </h1>
               
               {recipe.description && (
-                <p className="text-gray-600 dark:text-gray-400 mb-4">
+                <p className="text-slate-600 dark:text-slate-400 mb-4">
                   {recipe.description}
                 </p>
               )}
 
               {/* Author & Actions */}
-              <div className="flex items-center justify-between pb-4 mb-4 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-200 dark:border-slate-700">
                 <div className="flex items-center gap-3">
                   {recipe.author?.image ? (
                     <Image
                       src={recipe.author.image}
-                      alt={recipe.author.firstName || 'Author'}
+                      alt={recipe.author.firstName || t('author')}
                       width={40}
                       height={40}
                       className="rounded-full"
                     />
                   ) : (
-                    <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900 rounded-full flex items-center justify-center text-lg">
+                    <div className="w-10 h-10 bg-teal-100 dark:bg-teal-900 rounded-full flex items-center justify-center text-lg">
                       {recipe.author?.firstName?.charAt(0) || '?'}
                     </div>
                   )}
                   <div>
-                    <p className="font-medium text-gray-900 dark:text-white text-sm">
-                      {recipe.author ? `${recipe.author.firstName} ${recipe.author.lastName}` : 'Unknown Author'}
+                    <p className="font-medium text-slate-900 dark:text-white text-sm">
+                      {recipe.author ? `${recipe.author.firstName} ${recipe.author.lastName}` : tc('unknownAuthor')}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {new Date(recipe.createdAt).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric'
-                      })}
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      {format.date(recipe.createdAt, { year: 'numeric', month: 'short', day: 'numeric' })}
                     </p>
                   </div>
                 </div>
@@ -341,16 +325,15 @@ export default function RecipeModal({ recipeId, isOpen, onClose, onRecipeDeleted
                     <Link
                       href={`/recipes/${recipeId}/edit`}
                       onClick={onClose}
-                      className="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                      className="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                     >
-                      ✏️ Edit
+                      <Pencil className="h-4 w-4 inline-block" /> {tc('edit')}
                     </Link>
                     <button
-                      onClick={handleDelete}
-                      disabled={deleting}
+                      onClick={() => setConfirmingDelete(true)}
                       className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
                     >
-                      {deleting ? '...' : '🗑️ Delete'}
+                      <Trash2 className="h-4 w-4 inline-block" /> {tc('delete')}
                     </button>
                   </div>
                 )}
@@ -359,31 +342,31 @@ export default function RecipeModal({ recipeId, isOpen, onClose, onRecipeDeleted
               {/* Quick Info */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
                 {recipe.prepTime && (
-                  <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3 text-center">
-                    <div className="text-xl mb-1">⏱️</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">Prep</div>
-                    <div className="font-semibold text-gray-900 dark:text-white text-sm">{recipe.prepTime} min</div>
+                  <div className="bg-slate-50 dark:bg-slate-900 rounded-xl p-3 text-center">
+                    <Clock className="h-6 w-6 text-blue-500 mx-auto mb-1" />
+                    <div className="text-xs text-slate-500 dark:text-slate-400">{t('prep')}</div>
+                    <div className="font-semibold text-slate-900 dark:text-white text-sm">{tc('minutes', { count: recipe.prepTime })}</div>
                   </div>
                 )}
                 {recipe.cookTime && (
-                  <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3 text-center">
-                    <div className="text-xl mb-1">🔥</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">Cook</div>
-                    <div className="font-semibold text-gray-900 dark:text-white text-sm">{recipe.cookTime} min</div>
+                  <div className="bg-slate-50 dark:bg-slate-900 rounded-xl p-3 text-center">
+                    <Flame className="h-6 w-6 text-teal-600 mx-auto mb-1" />
+                    <div className="text-xs text-slate-500 dark:text-slate-400">{t('cook')}</div>
+                    <div className="font-semibold text-slate-900 dark:text-white text-sm">{tc('minutes', { count: recipe.cookTime })}</div>
                   </div>
                 )}
                 {totalTime > 0 && (
-                  <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3 text-center">
-                    <div className="text-xl mb-1">⏰</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">Total</div>
-                    <div className="font-semibold text-gray-900 dark:text-white text-sm">{totalTime} min</div>
+                  <div className="bg-slate-50 dark:bg-slate-900 rounded-xl p-3 text-center">
+                    <Clock className="h-6 w-6 text-green-500 mx-auto mb-1" />
+                    <div className="text-xs text-slate-500 dark:text-slate-400">{t('total')}</div>
+                    <div className="font-semibold text-slate-900 dark:text-white text-sm">{tc('minutes', { count: totalTime })}</div>
                   </div>
                 )}
                 {recipe.servings && (
-                  <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3 text-center">
-                    <div className="text-xl mb-1">👥</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">Servings</div>
-                    <div className="font-semibold text-gray-900 dark:text-white text-sm">{recipe.servings}</div>
+                  <div className="bg-slate-50 dark:bg-slate-900 rounded-xl p-3 text-center">
+                    <Users className="h-6 w-6 text-blue-500 mx-auto mb-1" />
+                    <div className="text-xs text-slate-500 dark:text-slate-400">{t('servings')}</div>
+                    <div className="font-semibold text-slate-900 dark:text-white text-sm">{recipe.servings}</div>
                   </div>
                 )}
               </div>
@@ -395,7 +378,7 @@ export default function RecipeModal({ recipeId, isOpen, onClose, onRecipeDeleted
                     {recipe.tags.map((tag, index) => (
                       <span
                         key={index}
-                        className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-3 py-1 rounded-full text-xs"
+                        className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-3 py-1 rounded-full text-xs"
                       >
                         #{tag}
                       </span>
@@ -407,70 +390,72 @@ export default function RecipeModal({ recipeId, isOpen, onClose, onRecipeDeleted
               <div className="grid md:grid-cols-5 gap-6">
                 {/* Ingredients */}
                 <div className="md:col-span-2">
-                  <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                    🥗 Ingredients
+                  <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                    <ListChecks className="h-5 w-5" /> {t('ingredients')}
                   </h2>
                   {recipe.ingredients && recipe.ingredients.length > 0 ? (
-                    <ul className="space-y-2">
-                      {recipe.ingredients.map((ingredient, index) => (
-                        <li key={index} className="flex items-start gap-2 text-sm">
-                          <input
-                            type="checkbox"
-                            id={`modal-ingredient-${index}`}
-                            className="mt-0.5 h-4 w-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500"
-                          />
-                          <label
-                            htmlFor={`modal-ingredient-${index}`}
-                            className="text-gray-700 dark:text-gray-300 cursor-pointer"
-                          >
-                            {ingredient}
-                          </label>
-                        </li>
-                      ))}
-                    </ul>
+                    <IngredientChecklist
+                      key={recipe.id}
+                      recipeId={recipe.id}
+                      ingredients={recipe.ingredients}
+                      compact
+                    />
                   ) : (
-                    <p className="text-gray-500 dark:text-gray-400 text-sm">No ingredients listed.</p>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm">{t('noIngredients')}</p>
                   )}
                 </div>
 
                 {/* Instructions */}
                 <div className="md:col-span-3">
-                  <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                    📝 Instructions
+                  <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                    <BookOpen className="h-5 w-5" /> {t('instructions')}
                   </h2>
                   {recipe.steps && recipe.steps.length > 0 ? (
                     <ol className="space-y-4">
                       {recipe.steps.map((step, index) => (
                         <li key={index} className="flex gap-3">
-                          <span className="flex-shrink-0 w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                          <span className="flex-shrink-0 w-6 h-6 bg-teal-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
                             {index + 1}
                           </span>
-                          <p className="text-gray-700 dark:text-gray-300 text-sm">
+                          <p className="text-slate-700 dark:text-slate-300 text-sm">
                             {step}
                           </p>
                         </li>
                       ))}
                     </ol>
                   ) : (
-                    <p className="text-gray-500 dark:text-gray-400 text-sm">No instructions provided.</p>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm">{t('noInstructions')}</p>
                   )}
                 </div>
               </div>
 
               {/* Open Full Page Link */}
-              <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700 text-center">
+              <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700 text-center">
                 <Link
                   href={`/recipes/${recipeId}`}
                   onClick={onClose}
-                  className="text-orange-500 hover:text-orange-600 text-sm font-medium"
+                  className="text-teal-600 hover:text-teal-600 text-sm font-medium"
                 >
-                  Open full recipe page →
+                  {t('openFull')}
                 </Link>
               </div>
             </div>
           </div>
         )}
       </div>
+
+      {confirmingDelete && recipe && (
+        <DeleteRecipeDialog
+          recipeId={recipeId}
+          recipeTitle={recipe.title}
+          onClose={() => setConfirmingDelete(false)}
+          onDeleted={() => {
+            setConfirmingDelete(false);
+            onClose();
+            onRecipeDeleted?.();
+          }}
+        />
+      )}
     </div>
   );
 }

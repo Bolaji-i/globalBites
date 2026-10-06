@@ -5,6 +5,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import RecipeModal from './RecipeModal';
+import { ChefHat, UtensilsCrossed, Heart, Clock, Plus } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { useRecipeLabels } from '@/hooks/useLocaleFormat';
+import CuisineOptions from './CuisineOptions';
 
 interface Recipe {
   id: string;
@@ -32,14 +36,12 @@ interface Filters {
   maxPrepTime: string;
 }
 
-const CUISINES = [
-  'Italian', 'Japanese', 'Mexican', 'Indian', 'French', 'Thai', 'Chinese', 'Greek', 'Spanish', 'Korean', 'Vietnamese', 
-  'American', 'Middle Eastern', 'Caribbean', 'African', 'Mediterranean', 'Brazilian', 'Turkish', 'Persian', 'Nigerian'
-];
-
 const DIFFICULTIES = ['easy', 'medium', 'hard'];
 
 export default function RecipeList() {
+  const t = useTranslations('recipes.list');
+  const tc = useTranslations('common');
+  const labels = useRecipeLabels();
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<Filters>({
@@ -104,86 +106,84 @@ export default function RecipeList() {
   return (
     <>
       <Header />
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
         {/* Header */}
-        <div className="bg-gradient-to-r from-orange-500 to-red-500 py-12">
+        <div className="bg-teal-700 py-12">
         <div className="container mx-auto px-4">
           <h1 className="text-4xl font-bold text-white text-center mb-4">
-            🍳 Discover Recipes
+            <ChefHat className="h-8 w-8 inline-block" /> {t('title')}
           </h1>
           <p className="text-white/90 text-center max-w-2xl mx-auto">
-            Explore delicious recipes from around the world, shared by our community of food lovers.
+            {t('subtitle')}
           </p>
         </div>
       </div>
 
       <div className="container mx-auto px-4 py-8">
         {/* Filters */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6 mb-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             {/* Search */}
             <div className="lg:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Search
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                {tc('search')}
               </label>
               <input
                 type="text"
-                placeholder="Search recipes..."
+                placeholder={t('searchPlaceholder')}
                 value={filters.query}
                 onChange={(e) => handleFilterChange('query', e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                className="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-slate-800 dark:text-white"
               />
             </div>
 
             {/* Cuisine */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Cuisine
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                {t('cuisine')}
               </label>
               <select
                 value={filters.cuisine}
                 onChange={(e) => handleFilterChange('cuisine', e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                className="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-slate-800 dark:text-white"
               >
-                <option value="">All Cuisines</option>
-                {CUISINES.map(c => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
+                <option value="">{t('allCuisines')}</option>
+                <CuisineOptions current={filters.cuisine} />
               </select>
             </div>
 
             {/* Difficulty */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Difficulty
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                {t('difficulty')}
               </label>
               <select
                 value={filters.difficulty}
                 onChange={(e) => handleFilterChange('difficulty', e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                className="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-slate-800 dark:text-white"
               >
-                <option value="">Any</option>
+                <option value="">{t('any')}</option>
                 {DIFFICULTIES.map(d => (
-                  <option key={d} value={d}>{d.charAt(0).toUpperCase() + d.slice(1)}</option>
+                  <option key={d} value={d}>{labels.difficulty(d)}</option>
                 ))}
               </select>
             </div>
 
             {/* Max Prep Time */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Max Prep Time
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                {t('maxPrepTime')}
               </label>
               <select
                 value={filters.maxPrepTime}
                 onChange={(e) => handleFilterChange('maxPrepTime', e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                className="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-slate-800 dark:text-white"
               >
-                <option value="">Any</option>
-                <option value="15">15 mins</option>
-                <option value="30">30 mins</option>
-                <option value="60">1 hour</option>
-                <option value="120">2 hours</option>
+                <option value="">{t('any')}</option>
+                <option value="15">{t('mins', { count: 15 })}</option>
+                <option value="30">{t('mins', { count: 30 })}</option>
+                <option value="60">{t('hours', { count: 1 })}</option>
+                <option value="120">{t('hours', { count: 2 })}</option>
               </select>
             </div>
           </div>
@@ -192,9 +192,9 @@ export default function RecipeList() {
           {(filters.query || filters.cuisine || filters.difficulty || filters.maxPrepTime) && (
             <button
               onClick={clearFilters}
-              className="mt-4 text-sm text-orange-600 hover:text-orange-700 dark:text-orange-400"
+              className="mt-4 text-sm text-teal-600 hover:text-teal-700 dark:text-teal-400"
             >
-              Clear all filters
+              {t('clearFilters')}
             </button>
           )}
         </div>
@@ -203,9 +203,9 @@ export default function RecipeList() {
         <div className="flex justify-end mb-6">
           <Link
             href="/recipes/new"
-            className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2"
+            className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2"
           >
-            <span>➕</span> Create Recipe
+            <Plus className="h-5 w-5" /> {t('create')}
           </Link>
         </div>
 
@@ -213,31 +213,31 @@ export default function RecipeList() {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {[...Array(8)].map((_, i) => (
-              <div key={i} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden animate-pulse">
-                <div className="h-48 bg-gray-200 dark:bg-gray-700" />
+              <div key={i} className="bg-white dark:bg-slate-900 rounded-xl shadow-sm overflow-hidden animate-pulse">
+                <div className="h-48 bg-slate-200 dark:bg-slate-800" />
                 <div className="p-4">
-                  <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded mb-2" />
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4" />
+                  <div className="h-6 bg-slate-200 dark:bg-slate-800 rounded mb-2" />
+                  <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-3/4" />
                 </div>
               </div>
             ))}
           </div>
         ) : recipes.length === 0 ? (
           <div className="text-center py-16">
-            <div className="text-6xl mb-4">🍽️</div>
-            <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
-              No recipes found
+            <UtensilsCrossed className="h-16 w-16 text-slate-300 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-300 mb-2">
+              {t('noneFound')}
             </h3>
-            <p className="text-gray-500 dark:text-gray-400 mb-6">
+            <p className="text-slate-500 dark:text-slate-400 mb-6">
               {filters.query || filters.cuisine || filters.difficulty || filters.maxPrepTime
-                ? 'Try adjusting your filters'
-                : 'Be the first to share a recipe!'}
+                ? t('adjustFilters')
+                : t('beFirst')}
             </p>
             <Link
               href="/recipes/new"
-              className="inline-block bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+              className="inline-block bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
             >
-              Create Recipe
+              {t('create')}
             </Link>
           </div>
         ) : (
@@ -246,9 +246,9 @@ export default function RecipeList() {
               <div
                 key={recipe.id}
                 onClick={() => setSelectedRecipeId(recipe.id)}
-                className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow group cursor-pointer"
+                className="bg-white dark:bg-slate-900 rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow group cursor-pointer"
               >
-                <div className="relative h-48 bg-gray-100 dark:bg-gray-700">
+                <div className="relative h-48 bg-slate-100 dark:bg-slate-800">
                   {recipe.image ? (
                     <Image
                       src={recipe.image}
@@ -257,34 +257,34 @@ export default function RecipeList() {
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   ) : (
-                    <div className="flex items-center justify-center h-full text-6xl">
-                      🍽️
+                    <div className="flex items-center justify-center h-full">
+                      <UtensilsCrossed className="h-12 w-12 text-slate-300" />
                     </div>
                   )}
                   {recipe.cuisine && (
-                    <span className="absolute top-3 left-3 bg-white/90 dark:bg-gray-800/90 px-2 py-1 rounded-full text-xs font-medium">
-                      {recipe.cuisine}
+                    <span className="absolute top-3 left-3 bg-white/90 dark:bg-slate-900/90 px-2 py-1 rounded-full text-xs font-medium">
+                      {labels.cuisine(recipe.cuisine)}
                     </span>
                   )}
                   {recipe._count && recipe._count.favorites > 0 && (
                     <span className="absolute top-3 right-3 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1">
-                      ❤️ {recipe._count.favorites}
+                      <Heart className="h-3.5 w-3.5 fill-current" /> {recipe._count.favorites}
                     </span>
                   )}
                 </div>
                 <div className="p-4">
-                  <h3 className="font-semibold text-gray-900 dark:text-white mb-1 line-clamp-1">
+                  <h3 className="font-semibold text-slate-900 dark:text-white mb-1 line-clamp-1">
                     {recipe.title}
                   </h3>
                   {recipe.description && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-3">
+                    <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2 mb-3">
                       {recipe.description}
                     </p>
                   )}
-                  <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
                     <div className="flex items-center gap-2">
                       {recipe.prepTime && (
-                        <span>⏱️ {recipe.prepTime + (recipe.cookTime || 0)} min</span>
+                        <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {tc('minutes', { count: recipe.prepTime + (recipe.cookTime || 0) })}</span>
                       )}
                       {recipe.difficulty && (
                         <span className={`px-2 py-0.5 rounded-full ${
@@ -292,12 +292,12 @@ export default function RecipeList() {
                           recipe.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300' :
                           'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
                         }`}>
-                          {recipe.difficulty}
+                          {labels.difficulty(recipe.difficulty)}
                         </span>
                       )}
                     </div>
-                    <span className="text-gray-400">
-                      by {recipe.author.firstName}
+                    <span className="text-slate-400">
+                      {tc('by', { name: recipe.author.firstName })}
                     </span>
                   </div>
                 </div>
@@ -312,19 +312,19 @@ export default function RecipeList() {
             <button
               onClick={() => setPage(p => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700"
+              className="px-4 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-800"
             >
-              Previous
+              {tc('previous')}
             </button>
-            <span className="px-4 py-2 text-gray-600 dark:text-gray-400">
-              Page {page} of {totalPages}
+            <span className="px-4 py-2 text-slate-600 dark:text-slate-400">
+              {tc('pageOf', { page, total: totalPages })}
             </span>
             <button
               onClick={() => setPage(p => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
-              className="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700"
+              className="px-4 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-800"
             >
-              Next
+              {tc('next')}
             </button>
           </div>
         )}

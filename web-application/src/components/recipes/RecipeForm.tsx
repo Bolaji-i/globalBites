@@ -1,7 +1,11 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSession } from 'next-auth/react';
+import { useLocale, useTranslations } from 'next-intl';
+import { useRecipeLabels } from '@/hooks/useLocaleFormat';
+import CuisineOptions from './CuisineOptions';
+import { countryOptions } from '@/lib/countries';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
@@ -24,18 +28,6 @@ interface RecipeData {
   tags: string[];
 }
 
-const CUISINES = [
-  'Italian', 'Japanese', 'Mexican', 'Indian', 'French', 'Thai', 
-  'Chinese', 'Greek', 'Spanish', 'Korean', 'Vietnamese', 'American',
-  'Ethiopian', 'Moroccan', 'Lebanese', 'Turkish', 'Brazilian', 'Peruvian'
-];
-
-const COUNTRIES = [
-  'United States', 'Italy', 'Japan', 'Mexico', 'India', 'France', 'Thailand',
-  'China', 'Greece', 'Spain', 'Korea', 'Vietnam', 'Ethiopia', 'Morocco',
-  'Lebanon', 'Turkey', 'Brazil', 'Peru', 'Nigeria', 'Ghana', 'Jamaica'
-];
-
 const initialFormData: RecipeData = {
   title: '',
   description: '',
@@ -53,6 +45,11 @@ const initialFormData: RecipeData = {
 
 export default function RecipeForm({ recipeId }: RecipeFormProps) {
   const { data: session, status } = useSession();
+  const t = useTranslations('recipes.form');
+  const tc = useTranslations('common');
+  const labels = useRecipeLabels();
+  const locale = useLocale();
+  const countries = useMemo(() => countryOptions(locale), [locale]);
   const router = useRouter();
   const [formData, setFormData] = useState<RecipeData>(initialFormData);
   const [tagInput, setTagInput] = useState('');
@@ -179,11 +176,22 @@ export default function RecipeForm({ recipeId }: RecipeFormProps) {
     setLoading(true);
     setError('');
 
-    // Filter out empty ingredients and instructions
+    // A tag still sitting in the input counts, even if "Add" was never pressed
+    const pendingTag = tagInput.trim().toLowerCase();
+    const tags =
+      pendingTag && !formData.tags.includes(pendingTag)
+        ? [...formData.tags, pendingTag]
+        : formData.tags;
+
+    // Filter out empty ingredients and instructions.
+    // The API stores instructions under `steps`.
+    const { instructions, ...fields } = formData;
     const cleanedData = {
-      ...formData,
+      ...fields,
+      description: formData.description.trim(),
+      tags,
       ingredients: formData.ingredients.filter(i => i.trim()),
-      instructions: formData.instructions.filter(i => i.trim()),
+      steps: instructions.filter(i => i.trim()),
       prepTime: formData.prepTime ? parseInt(formData.prepTime) : null,
       cookTime: formData.cookTime ? parseInt(formData.cookTime) : null,
       servings: formData.servings ? parseInt(formData.servings) : null,
@@ -192,17 +200,17 @@ export default function RecipeForm({ recipeId }: RecipeFormProps) {
 
     // Validation
     if (!cleanedData.title.trim()) {
-      setError('Recipe title is required');
+      setError(t('titleRequired'));
       setLoading(false);
       return;
     }
     if (cleanedData.ingredients.length === 0) {
-      setError('At least one ingredient is required');
+      setError(t('ingredientRequired'));
       setLoading(false);
       return;
     }
-    if (cleanedData.instructions.length === 0) {
-      setError('At least one instruction is required');
+    if (cleanedData.steps.length === 0) {
+      setError(t('instructionRequired'));
       setLoading(false);
       return;
     }
@@ -219,7 +227,7 @@ export default function RecipeForm({ recipeId }: RecipeFormProps) {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Failed to save recipe');
+        throw new Error(data.error || t('saveFailed'));
       }
 
       const data = await response.json();
@@ -229,7 +237,7 @@ export default function RecipeForm({ recipeId }: RecipeFormProps) {
       router.refresh();
       router.push(`/recipes/${recipe.id}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save recipe');
+      setError(err instanceof Error ? err.message : t('saveFailed'));
     } finally {
       setLoading(false);
     }
@@ -237,23 +245,23 @@ export default function RecipeForm({ recipeId }: RecipeFormProps) {
 
   if (status === 'loading' || loadingRecipe) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-8">
       <div className="container mx-auto px-4 max-w-3xl">
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            {isEditMode ? '✏️ Edit Recipe' : '🍳 Create New Recipe'}
+        <div className="bg-white dark:bg-slate-900 rounded-lg shadow-md p-8">
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+            {isEditMode ? t('editTitle') : t('createTitle')}
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-8">
+          <p className="text-slate-600 dark:text-slate-400 mb-8">
             {isEditMode 
-              ? 'Update your recipe details below'
-              : 'Share your culinary creation with the world'
+              ? t('editSubtitle')
+              : t('createSubtitle')
             }
           </p>
 
@@ -266,50 +274,50 @@ export default function RecipeForm({ recipeId }: RecipeFormProps) {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Info */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Recipe Title *
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                {t('title')} *
               </label>
               <input
                 type="text"
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
-                placeholder="e.g., Grandma's Spaghetti Carbonara"
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                placeholder={t('titlePlaceholder')}
+                className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-slate-800 dark:text-white"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Description
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                {t('description')}
               </label>
               <textarea
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
-                placeholder="Tell us about this recipe..."
+                placeholder={t('descriptionPlaceholder')}
                 rows={3}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-slate-800 dark:text-white"
               />
             </div>
 
             {/* Image Upload */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Recipe Image
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                {t('image')}
               </label>
               <div className="flex items-center gap-4">
                 {imagePreview && (
                   <div className="relative w-32 h-32 rounded-lg overflow-hidden">
-                    <Image src={imagePreview} alt="Preview" fill className="object-cover" />
+                    <Image src={imagePreview} alt={t('preview')} fill className="object-cover" />
                   </div>
                 )}
                 <input
                   type="file"
                   accept="image/*"
                   onChange={handleImageChange}
-                  className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:bg-gray-700 dark:text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"
+                  className="flex-1 px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-slate-800 dark:text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100"
                 />
               </div>
             </div>
@@ -317,34 +325,36 @@ export default function RecipeForm({ recipeId }: RecipeFormProps) {
             {/* Cuisine & Country */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Cuisine
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  {t('cuisine')}
                 </label>
                 <select
                   name="cuisine"
                   value={formData.cuisine}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-slate-800 dark:text-white"
                 >
-                  <option value="">Select cuisine</option>
-                  {CUISINES.map(c => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
+                  <option value="">{t('selectCuisine')}</option>
+                  <CuisineOptions current={formData.cuisine} />
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Country of Origin
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  {t('country')}
                 </label>
                 <select
                   name="country"
                   value={formData.country}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-slate-800 dark:text-white"
                 >
-                  <option value="">Select country</option>
-                  {COUNTRIES.map(c => (
-                    <option key={c} value={c}>{c}</option>
+                  <option value="">{t('selectCountry')}</option>
+                  {/* A recipe saved with a name the list no longer offers keeps it */}
+                  {formData.country && !countries.some(c => c.value === formData.country) && (
+                    <option value={formData.country}>{labels.country(formData.country)}</option>
+                  )}
+                  {countries.map(c => (
+                    <option key={c.value} value={c.value}>{c.label}</option>
                   ))}
                 </select>
               </div>
@@ -353,23 +363,23 @@ export default function RecipeForm({ recipeId }: RecipeFormProps) {
             {/* Difficulty & Times */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Difficulty
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  {t('difficulty')}
                 </label>
                 <select
                   name="difficulty"
                   value={formData.difficulty}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-slate-800 dark:text-white"
                 >
-                  <option value="easy">Easy</option>
-                  <option value="medium">Medium</option>
-                  <option value="hard">Hard</option>
+                  <option value="easy">{labels.difficulty('easy')}</option>
+                  <option value="medium">{labels.difficulty('medium')}</option>
+                  <option value="hard">{labels.difficulty('hard')}</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Prep Time (min)
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  {t('prepTime')}
                 </label>
                 <input
                   type="number"
@@ -378,12 +388,12 @@ export default function RecipeForm({ recipeId }: RecipeFormProps) {
                   onChange={handleChange}
                   min="0"
                   placeholder="15"
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-slate-800 dark:text-white"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Cook Time (min)
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  {t('cookTime')}
                 </label>
                 <input
                   type="number"
@@ -392,12 +402,12 @@ export default function RecipeForm({ recipeId }: RecipeFormProps) {
                   onChange={handleChange}
                   min="0"
                   placeholder="30"
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-slate-800 dark:text-white"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Servings
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  {t('servings')}
                 </label>
                 <input
                   type="number"
@@ -406,15 +416,15 @@ export default function RecipeForm({ recipeId }: RecipeFormProps) {
                   onChange={handleChange}
                   min="1"
                   placeholder="4"
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-slate-800 dark:text-white"
                 />
               </div>
             </div>
 
             {/* Ingredients */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Ingredients *
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                {t('ingredients')} *
               </label>
               <div className="space-y-2">
                 {formData.ingredients.map((ingredient, index) => (
@@ -423,8 +433,8 @@ export default function RecipeForm({ recipeId }: RecipeFormProps) {
                       type="text"
                       value={ingredient}
                       onChange={(e) => handleArrayChange('ingredients', index, e.target.value)}
-                      placeholder={`Ingredient ${index + 1}`}
-                      className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      placeholder={t('ingredientPlaceholder', { number: index + 1 })}
+                      className="flex-1 px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-slate-800 dark:text-white"
                     />
                     <button
                       type="button"
@@ -439,30 +449,30 @@ export default function RecipeForm({ recipeId }: RecipeFormProps) {
                 <button
                   type="button"
                   onClick={() => addArrayItem('ingredients')}
-                  className="text-orange-500 hover:text-orange-600 text-sm font-medium"
+                  className="text-teal-600 hover:text-teal-600 text-sm font-medium"
                 >
-                  + Add ingredient
+                  + {t('addIngredient')}
                 </button>
               </div>
             </div>
 
             {/* Instructions */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Instructions *
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                {t('instructions')} *
               </label>
               <div className="space-y-2">
                 {formData.instructions.map((instruction, index) => (
                   <div key={index} className="flex gap-2">
-                    <span className="flex-shrink-0 w-8 h-12 bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-orange-300 rounded-lg flex items-center justify-center font-bold">
+                    <span className="flex-shrink-0 w-8 h-12 bg-teal-100 dark:bg-teal-900 text-teal-600 dark:text-teal-300 rounded-lg flex items-center justify-center font-bold">
                       {index + 1}
                     </span>
                     <textarea
                       value={instruction}
                       onChange={(e) => handleArrayChange('instructions', index, e.target.value)}
-                      placeholder={`Step ${index + 1}`}
+                      placeholder={t('stepPlaceholder', { number: index + 1 })}
                       rows={2}
-                      className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      className="flex-1 px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-slate-800 dark:text-white"
                     />
                     <button
                       type="button"
@@ -477,17 +487,17 @@ export default function RecipeForm({ recipeId }: RecipeFormProps) {
                 <button
                   type="button"
                   onClick={() => addArrayItem('instructions')}
-                  className="text-orange-500 hover:text-orange-600 text-sm font-medium"
+                  className="text-teal-600 hover:text-teal-600 text-sm font-medium"
                 >
-                  + Add step
+                  + {t('addStep')}
                 </button>
               </div>
             </div>
 
             {/* Tags */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Tags
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                {t('tags')}
               </label>
               <div className="flex gap-2 mb-2">
                 <input
@@ -500,15 +510,15 @@ export default function RecipeForm({ recipeId }: RecipeFormProps) {
                       addTag();
                     }
                   }}
-                  placeholder="Add a tag..."
-                  className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  placeholder={t('tagPlaceholder')}
+                  className="flex-1 px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-slate-800 dark:text-white"
                 />
                 <button
                   type="button"
                   onClick={addTag}
-                  className="px-4 py-3 bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-orange-300 rounded-lg hover:bg-orange-200 dark:hover:bg-orange-800"
+                  className="px-4 py-3 bg-teal-100 dark:bg-teal-900 text-teal-600 dark:text-teal-300 rounded-lg hover:bg-teal-200 dark:hover:bg-teal-800"
                 >
-                  Add
+                  {t('add')}
                 </button>
               </div>
               {formData.tags.length > 0 && (
@@ -516,13 +526,13 @@ export default function RecipeForm({ recipeId }: RecipeFormProps) {
                   {formData.tags.map((tag, index) => (
                     <span
                       key={index}
-                      className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-1 rounded-full text-sm flex items-center gap-2"
+                      className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-3 py-1 rounded-full text-sm flex items-center gap-2"
                     >
                       #{tag}
                       <button
                         type="button"
                         onClick={() => removeTag(tag)}
-                        className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-200"
+                        className="text-slate-500 hover:text-slate-700 dark:hover:text-slate-200"
                       >
                         ✕
                       </button>
@@ -537,16 +547,16 @@ export default function RecipeForm({ recipeId }: RecipeFormProps) {
               <button
                 type="button"
                 onClick={() => router.back()}
-                className="flex-1 px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                className="flex-1 px-6 py-3 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
               >
-                Cancel
+                {tc('cancel')}
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-6 py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Saving...' : isEditMode ? 'Update Recipe' : 'Create Recipe'}
+                {loading ? tc('saving') : isEditMode ? t('update') : t('create')}
               </button>
             </div>
           </form>
